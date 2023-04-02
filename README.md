@@ -6,7 +6,7 @@ I am training hackerbot on various cyber security skills
 Skill | Tools | Status |
 --- | --- | ---
 Port Scanning | nmap | In progress
-reading logs | AWS CloudWatch Insight | Coming soon
+Reading logs | AWS CloudWatch Insight | Coming soon
 
 ## Usage
 
