@@ -16,6 +16,8 @@ exit | Exits hackerbot
 
 ## Example
 
+Scanning an IP address:
+
 ```
 hb>scan 8.8.8.8 for ports less than 1000 and run services scan
 ```
