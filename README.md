@@ -19,6 +19,7 @@ exit | Exits hackerbot
 Scanning an IP address:
 
 ```
+python hb.py
 hb>scan 8.8.8.8 for ports less than 1000 and run services scan
 ```
 
