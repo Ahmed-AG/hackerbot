@@ -10,7 +10,7 @@ Reading logs | AWS CloudWatch Insight | Coming soon
 ## Usage
 hacker bot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
 Actions | Details
---- |
+--- | ---|
 scan | Runs a port scan
 exit | Exits hackerbot 
 
