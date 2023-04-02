@@ -17,7 +17,7 @@ exit | Exits hackerbot
 ## Example
 
 ```bash
-hb>'scan' 8.8.8.8 for ports less than 1000 and run services scan
+hb>scan 8.8.8.8 for ports less than 1000 and run services scan
 ```
 
 ![alt text](hackerbot-screenshot-1.png?raw=true)
