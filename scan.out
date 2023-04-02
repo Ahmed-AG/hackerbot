@@ -1,0 +1,9 @@
+Starting Nmap 7.93 ( https://nmap.org ) at 2023-04-01 08:09 CDT
+Nmap scan report for 192.168.5.200
+Host is up (0.013s latency).
+Not shown: 999 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+3389/tcp open  ms-wbt-server xrdp
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 14.06 seconds
