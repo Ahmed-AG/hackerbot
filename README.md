@@ -5,7 +5,7 @@ An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to 
 Skill | Tools | Status |
 --- | --- | ---
 Port Scanning | nmap | In progress
-Reading logs | AWS CloudWatch Insight | Coming soon
+Reading AWS logs | AWS CloudWatch Insight | Coming soon
 
 ## Usage
 hackerbot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
