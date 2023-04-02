@@ -8,13 +8,17 @@ Port Scanning | nmap | In progress
 Reading logs | AWS CloudWatch Insight | Coming soon
 
 ## Usage
-hacker bot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
+hackerbot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
 Actions | Details
 --- | ---|
 scan | Runs a port scan
 exit | Exits hackerbot 
 
 ## Example
+
+```bash
+hb>'scan' 8.8.8.8 for ports less than 1000 and run services scan
+```
 
 ![alt text](hackerbot-screenshot-1.png?raw=true)
 
