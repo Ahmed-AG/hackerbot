@@ -1,4 +1,4 @@
-# hackerbot - POC
+# hackerbot
 An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to do various cybr security tasks
 
 ## Skills
