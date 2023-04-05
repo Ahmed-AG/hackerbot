@@ -1,5 +1,5 @@
 # hackerBot
-An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to do various cybr security tasks
+An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to do various Cyber Security tasks
 
 ## Skills
 Skill | Tools | Status |
