@@ -35,8 +35,8 @@ def process_user_input(user_input):
     elif subroutine == "go":
         common.excute_command(exe["command"],"{}.out".format(exe["type"]))
     elif subroutine == "cmd":
-        command = " ".join(str(x) for x in user_input.split(' ')[1:])
-        common.excute_command(user_input.split(' ')[1:], "{}.out".format(command))
+        command = user_input[3:]
+        common.excute_command(command, "cmd.out")
     elif subroutine == "reload":
         initialize_index()
     elif subroutine == "": pass
