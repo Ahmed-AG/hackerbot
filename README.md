@@ -11,16 +11,16 @@ Reading AWS logs | AWS CloudWatch Insight | Coming soon
 
 ## Set up
 - Clone the repo
+```
+git clone https://github.com/Ahmed-AG/hackerbot.git
+```
 - Install prerequisites 
-
 ```
 $ pip install openai
 $ pip install langchain
 $ pip install chromadb
 ```
-
 - Export OpenAI Key
-
 ```
 $ export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
 ```
