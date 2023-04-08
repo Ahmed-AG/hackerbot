@@ -4,15 +4,18 @@ An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to 
 ## Skills
 Skill | Tools | Status |
 --- | --- | ---
-Port Scanning | nmap | In progress
+aws cli | aws cli | Beta
+Port Scanning | nmap | Beta
+Netcat | nc | Beta
 Reading AWS logs | AWS CloudWatch Insight | Coming soon
 
 ## Usage
 hackerbot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
 Actions | Details
 --- | ---|
-scan | Runs a port scan
 exit | Exits hackerbot 
+go | Executes the command last generated
+reload | Reloads skills from files
 
 ## Example
 

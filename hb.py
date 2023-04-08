@@ -1,4 +1,6 @@
 import common
+import hb_langchain
+from colorama import Fore, Back, Style
 
 exe = {
     "command" : "",
@@ -6,43 +8,47 @@ exe = {
 }
 
 def print_banner():
-    print("Welcome to HackerBot!")
+    print("Welcome to " + Fore.GREEN + "HackerBot" + Style.RESET_ALL + "!")
 
-def answer_user_questions(question):
-    data = common.read_file("scan.out")
-    context = "based on this:\n{}".format(data)
-    prompt = "{}\n{} ->".format(str(context), question)
-    return common.talk_to_ai(prompt)
+def initialize_index():
+    global index
+    index = hb_langchain.initialize_index()
+    return index
 
-def invoke_scanner(user_input):
-    context_file = "contexts/port_scanning.txt"
-    # output_file = "scanner.out"
-    context = common.read_file(context_file)
-    prompt = "{}\n{} ->".format(str(context), user_input)
+def ask_ai(user_input):
+    prompt = "Answer only with the actual command. {}".format(user_input)
+    ai_response = index.query_with_sources(prompt)
+   
+    exe["command"] = ai_response['answer'][:-1]
+    exe["type"] = "AI"
 
-    exe["command"] = common.talk_to_ai(prompt)
-    exe["type"] = "scan"
+    print("Skills: {}".format(ai_response['sources']))
+    print("Execute:" + Fore.GREEN + "{}".format(exe["command"]) + Style.RESET_ALL + "\n Type \'go\' to execute:")
 
-    print("Command to execute: {}".format(exe["command"]))
-    print("Type \'exec\' to execute")
+    return ai_response
 
 def process_user_input(user_input):
     subroutine = user_input.split(' ')[0]
-    if subroutine == "scan":
-        invoke_scanner(user_input)
-    elif subroutine == "exec":
-        common.excute_command(exe["command"],"{}.out".format(exe["type"]))
-    elif subroutine == "question":
-        print(answer_user_questions(user_input))
-    elif subroutine == "exit":
+    if subroutine == "exit":
         print("Good Bye!")
         exit()
+    elif subroutine == "go":
+        common.excute_command(exe["command"],"{}.out".format(exe["type"]))
+    elif subroutine == "cmd":
+        command = " ".join(str(x) for x in user_input.split(' ')[1:])
+        common.excute_command(user_input.split(' ')[1:], "{}.out".format(command))
+    elif subroutine == "reload":
+        initialize_index()
+    elif subroutine == "": pass
+    else:
+        ask_ai(user_input)
 
 def prompt():
-    user_input = input("hb>")
+    user_input = input(Fore.GREEN + "hb>" + Style.RESET_ALL)
     process_user_input(user_input)
 
 def hb():
+    initialize_index()
     print_banner()
     while(True):
         prompt()
