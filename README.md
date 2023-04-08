@@ -27,7 +27,7 @@ $ python hb.py
 hb>show me instances in us-east-2. display instance ID, instance name, and AMi in a table
 ```
 
-![alt text](images/describe-instances.png.png?raw=true)
+![alt text](images/describe-instances.png?raw=true)
 
 ### Scanning an IP address
 
