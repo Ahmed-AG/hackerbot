@@ -11,7 +11,7 @@ Reading AWS logs | AWS CloudWatch Insight | Coming soon
 
 ## Set up
 - Clone the repo
-- install prerequisites 
+- Install prerequisites 
 
 ```
 $ pip install openai
