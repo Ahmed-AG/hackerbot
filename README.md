@@ -9,6 +9,22 @@ Port Scanning | nmap | Beta
 Netcat | nc | Beta
 Reading AWS logs | AWS CloudWatch Insight | Coming soon
 
+## Set up
+- Clone the repo
+- install prerequisites 
+
+```
+$ pip install openai
+$ pip install langchain
+$ pip install chromadb
+```
+
+- Export OpenAI Key
+
+```
+$ export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
+```
+
 ## Usage
 hackerbot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
 Actions | Details
