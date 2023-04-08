@@ -8,7 +8,7 @@ exe = {
 }
 
 def print_banner():
-    print("Welcome to " + Fore.GREEN + "HackerBot!" + Style.RESET_ALL)
+    print("Welcome to " + Fore.GREEN + "HackerBot" + Style.RESET_ALL + "!")
 
 def initialize_index():
     global index
@@ -22,8 +22,8 @@ def ask_ai(user_input):
     exe["command"] = ai_response['answer'][:-1]
     exe["type"] = "AI"
 
-    # print("Sources: {}".format(ai_response['sources']))
-    print("Command to execute:" + Fore.GREEN + "{}".format(exe["command"]) + Style.RESET_ALL + "\n Type \'exec\' to execute:")
+    print("Skills: {}".format(ai_response['sources']))
+    print("Execute:" + Fore.GREEN + "{}".format(exe["command"]) + Style.RESET_ALL + "\n Type \'go\' to execute:")
 
     return ai_response
 
@@ -32,10 +32,14 @@ def process_user_input(user_input):
     if subroutine == "exit":
         print("Good Bye!")
         exit()
-    elif subroutine == "exec":
+    elif subroutine == "go":
         common.excute_command(exe["command"],"{}.out".format(exe["type"]))
+    elif subroutine == "cmd":
+        command = " ".join(str(x) for x in user_input.split(' ')[1:])
+        common.excute_command(user_input.split(' ')[1:], "{}.out".format(command))
     elif subroutine == "reload":
         initialize_index()
+    elif subroutine == "": pass
     else:
         ask_ai(user_input)
 
