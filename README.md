@@ -18,7 +18,7 @@ go | Executes the command last generated
 reload | Reloads skills from files
 cmd | executes custom commands directly (no AI)
 
-## Example
+## Examples
 
 ### Showing instances
 
