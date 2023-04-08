@@ -16,15 +16,34 @@ Actions | Details
 exit | Exits hackerbot 
 go | Executes the command last generated
 reload | Reloads skills from files
+cmd | executes custom commands directly (no AI)
 
 ## Example
 
-Scanning an IP address:
+### Showing instances
 
 ```
-python hb.py
+$ python hb.py
+hb>show me instances in us-east-2. display instance ID, instance name, and AMi in a table
+```
+
+![alt text](images/describe-instances.png.png?raw=true)
+
+### Scanning an IP address
+
+```
+$ python hb.py
 hb>scan 8.8.8.8 for ports less than 1000 and run services scan
 ```
 
-![alt text](hackerbot-screenshot-1.png?raw=true)
+![alt text](images/port-scan-screenshot.png?raw=true)
+
+
+### Run commands directly (no AI)
+
+```
+$ python hb.py
+hb>cmd python --version
+Python 3.10.8
+```
 

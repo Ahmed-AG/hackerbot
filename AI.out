@@ -1,0 +1,29 @@
+Starting Nmap 7.93 ( https://nmap.org ) at 2023-04-08 19:35 EDT
+Nmap scan report for dns.google (8.8.8.8)
+Host is up (0.019s latency).
+Not shown: 997 filtered tcp ports (no-response)
+PORT    STATE SERVICE    VERSION
+53/tcp  open  tcpwrapped
+443/tcp open  ssl/https  HTTP server (unknown)
+853/tcp open  ssl/domain (generic dns response: SERVFAIL)
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port443-TCP:V=7.93%T=SSL%I=7%D=4/8%Time=6431FA3C%P=x86_64-pc-linux-gnu%
+SF:r(GetRequest,23A,"HTTP/1\.0\x20302\x20Found\r\nX-Content-Type-Options:\
+SF:x20nosniff\r\nAccess-Control-Allow-Origin:\x20\*\r\nLocation:\x20https:
+SF://dns\.google/\r\nDate:\x20Sat,\x2008\x20Apr\x202023\x2023:35:24\x20GMT
+SF:\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\nServer:\x20HTTP\x20
+SF:server\x20\(unknown\)\r\nContent-Length:\x20216\r\nX-XSS-Protection:\x2
+SF:00\r\nX-Frame-Options:\x20SAMEORIGIN\r\nAlt-Svc:\x20h3=\":443\";\x20ma=
+SF:2592000,h3-29=\":443\";\x20ma=2592000\r\n\r\n<HTML><HEAD><meta\x20http-
+SF:equiv=\"content-type\"\x20content=\"text/html;charset=utf-8\">\n<TITLE>
+SF:302\x20Moved</TITLE></HEAD><BODY>\n<H1>302\x20Moved</H1>\nThe\x20docume
+SF:nt\x20has\x20moved\n<A\x20HREF=\"https://dns\.google/\">here</A>\.\r\n<
+SF:/BODY></HTML>\r\n");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port853-TCP:V=7.93%T=SSL%I=7%D=4/8%Time=6431FA41%P=x86_64-pc-linux-gnu%
+SF:r(DNSVersionBindReqTCP,20,"\0\x1e\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07ve
+SF:rsion\x04bind\0\0\x10\0\x03");
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 72.01 seconds
