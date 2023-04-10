@@ -62,4 +62,5 @@ $ python hb.py
 hb>cmd python --version
 Python 3.10.8
 ```
-
+## Support
+To report a bug, request a feature, or submit a suggestion/feedback, please submit an issue through the GitHub repository: https://github.com/Ahmed-AG/hackerbot/issues/new
