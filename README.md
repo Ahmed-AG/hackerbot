@@ -27,13 +27,12 @@ $ export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
 
 ## Usage
 hackerBot will examine the first word of the user's input. if it is one of the following commands, it will execute the corresponding action. Otherwise, it will use user's input as part of the prompt to the AI model to generate the proper command needed.
-hackerBot Commands:
 Command | Action
 --- | ---|
-exit | Exits hackerbot 
 go | Executes the command last generated. Used as a human verification step.
-reload | Reloads skills from files
 cmd | executes custom commands directly (no AI)
+reload | Reloads skills from files
+exit | Exits hackerbot 
 
 ## Examples
 
