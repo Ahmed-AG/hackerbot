@@ -26,11 +26,12 @@ $ export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
 ```
 
 ## Usage
-hackerbot will use the first "word" in your promopt to decide the action it needs to take. The following are the currently supported actions:
-Actions | Details
+hackerBot will examine the first word of the user's input. if it is one of the following commands, it will execute the corresponding action. Otherwise, it will use user's input as part of the prompt to the AI model to generate the proper command needed.
+hackerBot Commands:
+Command | Action
 --- | ---|
 exit | Exits hackerbot 
-go | Executes the command last generated
+go | Executes the command last generated. Used as a human verification step.
 reload | Reloads skills from files
 cmd | executes custom commands directly (no AI)
 
