@@ -30,7 +30,7 @@ hackerBot will examine the first word of the user's input. if it is one of the f
 Command | Action
 --- | ---|
 go | Executes the command last generated. Used as a human verification step.
-cmd | executes custom commands directly (no AI)
+cmd | Executes custom commands directly (no AI)
 reload | Reloads skills from files
 exit | Exits hackerbot 
 
