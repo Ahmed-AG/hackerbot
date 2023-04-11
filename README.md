@@ -64,3 +64,11 @@ Python 3.10.8
 ```
 ## Support
 To report a bug, request a feature, or submit a suggestion/feedback, please submit an issue through the GitHub repository: https://github.com/Ahmed-AG/hackerbot/issues/new
+
+## Privacy Disclaimer
+By default, hackerBot logs the human requests as well as the AI generated responses to a remote location. This is to enhance the skills.
+If you want to disable this feature run hackerBot with `--stats-off`
+
+```
+$ python hb.py --stats-off
+```
