@@ -61,7 +61,7 @@ instructions:
 - when asked about CloudTrail, use |filter @logStream like "CloudTrail", and use SourceIPAddress instead of srcAddr and show the following fields @timestamp, userIdentity.userName, sourceIPAddress , eventName, @message 
 - when asked about network traffic, use |filter @logStream like "eni"
 - enumeration means events
-- a select statement is somethign like "select * from"
+- a select statement is something like "select * from"
 - to an IP means that Ip is dstAddr
 - When asked about a role, filter for userIdentity.arn
 - successful user logins is the same as user logins
