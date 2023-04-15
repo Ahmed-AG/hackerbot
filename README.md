@@ -42,6 +42,13 @@ reload | Reloads skills from files | reload
 exit | Exits hackerbot | exit
 
 ## Examples
+### Search CloudWatch Logs
+```
+python hb.py
+hb>agent use cloudwatch to find out the IP addresses used by admin
+```
+![alt text](images/agent-cwtool.png?raw=true)
+
 
 ### Showing instances
 
