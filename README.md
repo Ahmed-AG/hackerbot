@@ -33,11 +33,11 @@ export CWTOOL_REGION=<AWS REGION>
 
 ## Usage
 hackerBot will examine the first word of the user's input. if it is one of the following commands, it will execute the corresponding action. Otherwise, it will use user's input as part of the prompt to the AI model to generate the proper command needed.
-Command | Description | Use
+Command | Description | Use Example
 --- | --- | ---
-agent | starts custom LangChain Agent | agent <Your request>
+agent | starts custom LangChain Agent | agent use cloudwatch to search for..
 go | Executes the command last generated. Used as a human verification step | go
-cmd | Executes custom commands directly (no AI) | cmd <Linux shell command>
+cmd | Executes custom commands directly (no AI) | cmd ls -l
 reload | Reloads skills from files | reload
 exit | Exits hackerbot | exit
 
