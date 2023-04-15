@@ -1,0 +1,4 @@
+langchain
+colorama
+boto3
+chromadb

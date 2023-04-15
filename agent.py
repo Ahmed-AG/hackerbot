@@ -6,56 +6,8 @@ from langchain.schema import AgentAction, AgentFinish
 import re
 from langchain.utilities import BashProcess
 from langchain.tools.human.tool import HumanInputRun
-import tool_custom_test
+import langchain_tools.cwtool
 import sys
-
-
-# Define which tools the agent can use to answer user queries
-search = SerpAPIWrapper()
-bash = BashProcess()
-human = HumanInputRun()
-cloudwatch = tool_custom_test.CloudWatchInsightQuery()
-
-tools = [
-    Tool(
-        name = "Search",
-        func=search.run,
-        description="useful for when you need to answer questions about current events"
-    ),
-    Tool(
-        name = "human",
-        func=human.run,
-        description="useful for when you need to ask the human for input"
-    ),
-    Tool(
-        name = "cloudwatch",
-        func=cloudwatch.run,
-        description="useful for when you need run an AWS cloudwatch insight query"
-    ),
-    Tool(
-        name = "terminal",
-        func=bash.run,
-        description="useful for when you need to run commands in a terminal"
-    )
-]
-
-# Set up the base template
-template = """You are a penetration tester. You will take steps to achieve the requested task. You have access to the following tools:
-{tools}
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
-
-Question: {input}
-{agent_scratchpad}"""
 
 # Set up a prompt template
 class CustomPromptTemplate(StringPromptTemplate):
@@ -101,18 +53,67 @@ class CustomOutputParser(AgentOutputParser):
         # Return the action and action input
         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
 
-prompt = CustomPromptTemplate(template=template,tools=tools,input_variables=["input", "intermediate_steps"])
-output_parser = CustomOutputParser()
-llm = OpenAI(temperature=0)
-llm_chain = LLMChain(llm=llm, prompt=prompt)
+def agent_run(user_input) -> None:
 
-tool_names = [tool.name for tool in tools]
-agent = LLMSingleActionAgent(
-    llm_chain=llm_chain, 
-    output_parser=output_parser,
-    stop=["\nObservation:"], 
-    allowed_tools=tool_names
-)
+    # Define which tools the agent can use to answer user queries
+    search = SerpAPIWrapper()
+    bash = BashProcess()
+    human = HumanInputRun()
+    cloudwatch = cwtool.CloudWatchInsightQuery()
 
-agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
-agent_executor.run(sys.argv[1])
+    tools = [
+        Tool(
+            name = "Search",
+            func=search.run,
+            description="useful for when you need to answer questions about current events"
+        ),
+        Tool(
+            name = "human",
+            func=human.run,
+            description="useful for when you need to ask the human for input"
+        ),
+        Tool(
+            name = "cloudwatch",
+            func=cloudwatch.run,
+            description="useful for when you need run an AWS cloudwatch insight query or search logs in AWS"
+        ),
+        Tool(
+            name = "terminal",
+            func=bash.run,
+            description="useful for when you need to run commands in a terminal"
+        )
+    ]
+
+    # Set up the base template
+    template = """You are a cyber Security professional. You will take steps to achieve the requested task. You have access to the following tools:
+    {tools}
+
+    Use the following format:
+
+    Question: the input question you must answer
+    Thought: you should always think about what to do
+    Action: the action to take, should be one of [{tool_names}]
+    Action Input: the input to the action
+    Observation: the result of the action
+    ... (this Thought/Action/Action Input/Observation can repeat N times)
+    Thought: I now know the final answer
+    Final Answer: the final answer to the original input question
+
+    Question: {input}
+    {agent_scratchpad}"""
+
+    prompt = CustomPromptTemplate(template=template,tools=tools,input_variables=["input", "intermediate_steps"])
+    output_parser = CustomOutputParser()
+    llm = OpenAI(temperature=0)
+    llm_chain = LLMChain(llm=llm, prompt=prompt)
+
+    tool_names = [tool.name for tool in tools]
+    agent = LLMSingleActionAgent(
+        llm_chain=llm_chain, 
+        output_parser=output_parser,
+        stop=["\nObservation:"], 
+        allowed_tools=tool_names
+    )
+
+    agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
+    agent_executor.run(user_input)

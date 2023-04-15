@@ -100,7 +100,7 @@ class CloudWatchInsightQuery(BaseTool):
             groups = input("CW_Tool: You need to set log group names. use comma seperated values:\n")
             self.CWTOOL_LOG_GROUPS = [group.strip() for group in groups.split(',')]
 
-        print("\nCW_Tool's settings:")
+        print("\nCWTOOL's settings:")
         print(" CWTOOL_LLM_MODEL=" + self.CWTOOL_LLM_MODEL)
         print(" CWTOOL_LOG_GROUPS=" + str(self.CWTOOL_LOG_GROUPS))
         print(" CWTOOL_DAYS_TO_SEARCH=" + str(self.CWTOOL_DAYS_TO_SEARCH))
