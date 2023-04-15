@@ -1,0 +1,5 @@
+langchain
+colorama
+boto3
+chromadb
+google-search-results

@@ -7,7 +7,7 @@ Skill | Tools | Status |
 aws cli | aws cli | Beta
 Port Scanning | nmap | Beta
 Netcat | nc | Beta
-Reading AWS logs | AWS CloudWatch Insight | Coming soon
+Reading AWS logs | Using LangChain Agent and AWS CloudWatch tool (CWTOOL) | Beta
 
 ## Set up
 - Clone the repo
@@ -16,30 +16,37 @@ git clone https://github.com/Ahmed-AG/hackerbot.git
 ```
 - Install prerequisites 
 ```
-$ pip install openai
-$ pip install langchain
-$ pip install chromadb
+pip install openai
+pip install langchain
+pip install chromadb
+pip install google-search-results
+pip install boto3
+pip install tiktoken
 ```
 - Export OpenAI Key
 ```
-$ export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
+export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
+export SERPAPI_API_KEY=<SERAPI_KEY>
+export CWTOOL_LOG_GROUPS=<LOGGROUP1,LOGGROUP2>
+export CWTOOL_REGION=<AWS REGION>
 ```
 
 ## Usage
 hackerBot will examine the first word of the user's input. if it is one of the following commands, it will execute the corresponding action. Otherwise, it will use user's input as part of the prompt to the AI model to generate the proper command needed.
-Command | Action
+Command | Descriptio | Use
 --- | ---|
-go | Executes the command last generated. Used as a human verification step.
-cmd | Executes custom commands directly (no AI)
-reload | Reloads skills from files
-exit | Exits hackerbot 
+agent | starts custom LangChain Agent | agent <Your request>
+go | Executes the command last generated. Used as a human verification step | go
+cmd | Executes custom commands directly (no AI) | cmd <Linux shell command>
+reload | Reloads skills from files | reload
+exit | Exits hackerbot | exit
 
 ## Examples
 
 ### Showing instances
 
 ```
-$ python hb.py
+python hb.py
 hb>show me instances in us-east-2. display instance ID, instance name, and AMi in a table
 ```
 
@@ -48,7 +55,7 @@ hb>show me instances in us-east-2. display instance ID, instance name, and AMi i
 ### Scanning an IP address
 
 ```
-$ python hb.py
+python hb.py
 hb>scan 8.8.8.8 for ports less than 1000 and run services scan
 ```
 
@@ -70,5 +77,5 @@ By default, hackerBot logs the human requests as well as the AI generated respon
 If you want to disable this feature run hackerBot with `--stats-off`
 
 ```
-$ python hb.py --stats-off
+python hb.py --stats-off
 ```
