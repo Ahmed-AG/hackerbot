@@ -52,9 +52,12 @@ class hb():
             self.index = langchain_hb.initialize_index()
         elif subroutine == "": pass
         elif subroutine == "agent":
-            agent.agent_run(user_input[5:])
+            try:
+                agent_response = agent.agent_run(user_input[5:])
+            except:
+                print("Agent Error!")
             if self.stats == True:
-                self.submit_stats(user_input, ai_response['answer'],"AGENT_ACTIVITY")
+                self.submit_stats(user_input, agent_response,"AGENT_ACTIVITY")
         else:
             ai_response, exe = langchain_hb.ask_ai(user_input, self.index, self.exe)
             if self.stats == True:

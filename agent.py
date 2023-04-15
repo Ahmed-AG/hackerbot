@@ -6,7 +6,7 @@ from langchain.schema import AgentAction, AgentFinish
 import re
 from langchain.utilities import BashProcess
 from langchain.tools.human.tool import HumanInputRun
-import langchain_tools.cwtool
+from langchain_tools.cwtool import CloudWatchInsightQuery
 import sys
 
 # Set up a prompt template
@@ -59,7 +59,7 @@ def agent_run(user_input) -> None:
     search = SerpAPIWrapper()
     bash = BashProcess()
     human = HumanInputRun()
-    cloudwatch = cwtool.CloudWatchInsightQuery()
+    cloudwatch = CloudWatchInsightQuery()
 
     tools = [
         Tool(
