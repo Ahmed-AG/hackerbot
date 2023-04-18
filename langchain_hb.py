@@ -9,7 +9,8 @@ def initialize_index():
     return index
 
 def ask_ai(user_input, index, exe):
-    prompt = "Answer only with the actual command. {}".format(user_input)
+    # prompt = "Answer only with the actual command. {}".format(user_input)
+    prompt = "Answer only with the actual HCL code. {}".format(user_input)
     ai_response = index.query_with_sources(prompt)
    
     exe["command"] = ai_response['answer'][:-1]
@@ -21,7 +22,8 @@ def ask_ai(user_input, index, exe):
     return ai_response, exe
 
 def initialize_index():
-    loader = DirectoryLoader('skills/', glob="*.skill", loader_cls=TextLoader)
+    loader = DirectoryLoader('/home/aag/repos/terraform-provider-aws/website/docs/r/', glob="*.markdown", loader_cls=TextLoader)
+    # loader = DirectoryLoader('skills/', glob="*.skill", loader_cls=TextLoader)
     index = VectorstoreIndexCreator().from_loaders([loader])
     docs = loader.load()
     # for doc in docs:

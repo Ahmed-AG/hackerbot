@@ -1,3 +1,4 @@
+Only respond with a Cloudwatch insight Query. Always
 To create an AWS Cloud Insight Query:
 
 Fields for filter:
@@ -13,8 +14,7 @@ Read only: readOnly
 errors: errorCode
 
 examples:
-identify any anomalies in the AWS logs -> I cannot identify anomalies yet. I am still in training.
-What actions did user Mike perform? ->fields @timestamp, userIdentity.userName, sourceIPAddress , eventName, @message | filter userIdentity.userName like "john" | sort @timestamp desc 
+What actions did user John perform? ->fields @timestamp, eventName, | filter userIdentity.userName like "john" | stats count(*) as count by eventName 
 Where did Helen log in to?->fields @timestamp, userIdentity.userName, sourceIPAddress , eventName, @message | filter userIdentity.userName like "helen" and eventName like "ConsoleLogin" | sort @timestamp desc 
 Where is Samy logging in from? ->fields @timestamp | filter userIdentity.userName like "Samy" and sourceIPAddress not like "AWS Internal" | sort @timestamp desc | stats count(*) as count by sourceIPAddress 
 What Ip Addresses is john using? ->fields @timestamp | filter userIdentity.userName like "Samy" and sourceIPAddress not like "AWS Internal" | stats count(*) as count by sourceIPAddress 
@@ -67,3 +67,4 @@ instructions:
 - successful user logins is the same as user logins
 - logs with ssh service means network traffic on port 22
 - events related to means search in @message
+- If asked to identify anomalies Respond with "I cannot identify anomalies yet. I am still in training."
