@@ -1,0 +1,4 @@
+export SERPAPI_API_KEY=<SERPAPI_KEY>
+export OPENAI_API_KEY=<OPENAI_KEY>
+export CWTOOL_LOG_GROUPS=cloudtrail,vpcflow
+export CWTOOL_REGION=us-east-1
