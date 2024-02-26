@@ -6,7 +6,7 @@ import requests
 import codecs
 from split_documents import split_documents as sd
 
-# Testing Parameters:
+# Parameters:
 OPENAI_APIKEY = os.environ['OPENAI_APIKEY']
 CLASS_NAME = "Man_pages"
 CHUNK_SIZE = 300
@@ -19,7 +19,6 @@ SOURCE_DOCUMENTS = [
 # Connect to Weaviate DB
 client = weaviate.Client(
     url = "http://localhost:8080",  
-    # auth_client_secret=weaviate.auth.AuthApiKey(api_key="YOUR-WEAVIATE-API-KEY"),  # Replace w/ your Weaviate instance API key
     additional_headers = {
         "X-OpenAI-Api-Key": OPENAI_APIKEY  
     }
@@ -52,8 +51,8 @@ else:
     print("Class Created!")
 
 split_documents_data = sd(SOURCE_DOCUMENTS,CHUNK_SIZE , OVERLAP_SIZE)
-# print(split_documents_data)
 
+# Load  Data
 client.batch.configure(batch_size=100)
 with client.batch as batch:
     for i, d in enumerate(split_documents_data):
