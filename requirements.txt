@@ -3,3 +3,5 @@ colorama
 boto3
 chromadb
 google-search-results
+weaviate-client
+unstructured[pdf]
