@@ -9,7 +9,9 @@ import uuid
 import warnings
 
 from hackerbot.tools.base_tool import BaseTool
-
+from hackerbot.exceptions import (
+    GenerationError,
+)
 
 logger: logging.Logger = logging.getLogger("hackerbot")
 
@@ -32,7 +34,8 @@ class Splunk(BaseTool):
         splunk_port: str | None = None,
         splunk_user: str | None = None,
         splunk_pass: str | None = None,
-        verify_ssl: bool = True
+        verify_ssl: bool | None  = None,
+        use_static_env_map: bool | None = None,
     ):
         """
         """
@@ -51,21 +54,30 @@ class Splunk(BaseTool):
         self._splunk_pass = splunk_pass or os.getenv('SPLUNK_PASS')
         assert self._splunk_pass is not None, "splunk_pass must be passed as an argument of an environmental variable ('SPLUNK_PASS')"
 
-        self._verify_ssl = verify_ssl
+        self._verify_ssl = verify_ssl or os.getenv('VERIFY_SSL', 'True').lower() == 'true'
         if self._verify_ssl is False:
+            requests.packages.urllib3.disable_warnings()
             warnings.warn("SSL verification is disabled. This is a security risk and should not be used in production.")
+
+        self._use_static_env_map = use_static_env_map or os.getenv('USE_SPLUNK_STATIC_ENV_MAP', 'False').lower() == 'true'
 
         if llm_model not in self._supported_models:
             raise ValueError(f"Model '{llm_model}' is not supported. Supported models: {self._supported_models}")
         self._llm_model = llm_model
 
+        logger.debug(f"Using LLM: {self._llm_model}")
+
         self._llm_client: Client | None = None
 
-        print("mapping the envirnoment..")
-        # self.env_map = self.map_env()
-        self.env_map = '''
-            {'sourcetypes': '[{"sourcetype": "PerfmonMk:Process"}, {"sourcetype": "Script:GetEndpointInfo"}, {"sourcetype": "Script:InstalledApps"}, {"sourcetype": "Script:ListeningPorts"}, {"sourcetype": "Unix:ListeningPorts"}, {"sourcetype": "Unix:SSHDConfig"}, {"sourcetype": "Unix:Service"}, {"sourcetype": "Unix:Update"}, {"sourcetype": "Unix:Uptime"}, {"sourcetype": "Unix:UserAccounts"}, {"sourcetype": "Unix:Version"}, {"sourcetype": "WinEventLog:Application"}, {"sourcetype": "WinEventLog:Microsoft-Windows-AppLocker/EXE and DLL"}, {"sourcetype": "WinEventLog:Microsoft-Windows-AppLocker/Packaged app-Execution"}, {"sourcetype": "WinEventLog:Microsoft-Windows-PowerShell/Operational"}, {"sourcetype": "WinEventLog:Security"}, {"sourcetype": "WinEventLog:System"}, {"sourcetype": "WinHostMon"}, {"sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"}, {"sourcetype": "access_combined"}, {"sourcetype": "alternatives"}, {"sourcetype": "amazon-ssm-agent"}, {"sourcetype": "amazon-ssm-agent-too_small"}, {"sourcetype": "apache_error"}, {"sourcetype": "aws:cloudtrail"}, {"sourcetype": "aws:cloudwatch"}, {"sourcetype": "aws:cloudwatch:guardduty"}, {"sourcetype": "aws:cloudwatchlogs"}, {"sourcetype": "aws:cloudwatchlogs:vpcflow"}, {"sourcetype": "aws:config:rule"}, {"sourcetype": "aws:description"}, {"sourcetype": "aws:elb:accesslogs"}, {"sourcetype": "aws:rds:audit"}, {"sourcetype": "aws:rds:error"}, {"sourcetype": "aws:s3:accesslogs"}, {"sourcetype": "bandwidth"}, {"sourcetype": "bash_history"}, {"sourcetype": "bootstrap"}, {"sourcetype": "cisco:asa"}, {"sourcetype": "cloud-init"}, {"sourcetype": "cloud-init-output"}, {"sourcetype": "code42:api"}, {"sourcetype": "code42:computer"}, {"sourcetype": "code42:org"}, {"sourcetype": "code42:security"}, {"sourcetype": "code42:user"}, {"sourcetype": "config_file"}, {"sourcetype": "cpu"}, {"sourcetype": "cron-too_small"}, {"sourcetype": "df"}, {"sourcetype": "dmesg"}, {"sourcetype": "dpkg"}, {"sourcetype": "error-too_small"}, {"sourcetype": "errors"}, {"sourcetype": "errors-too_small"}, {"sourcetype": "ess_content_importer"}, {"sourcetype": "hardware"}, {"sourcetype": "history-2"}, {"sourcetype": "interfaces"}, {"sourcetype": "iostat"}, {"sourcetype": "lastlog"}, {"sourcetype": "linux_audit"}, {"sourcetype": "linux_secure"}, {"sourcetype": "localhost-5"}, {"sourcetype": "lsof"}, {"sourcetype": "maillog-too_small"}, {"sourcetype": "ms:aad:audit"}, {"sourcetype": "ms:aad:signin"}, {"sourcetype": "ms:o365:management"}, {"sourcetype": "ms:o365:reporting:messagetrace"}, {"sourcetype": "netstat"}, {"sourcetype": "o365:management:activity"}, {"sourcetype": "openPorts"}, {"sourcetype": "osquery:info"}, {"sourcetype": "osquery:results"}, {"sourcetype": "osquery:warning"}, {"sourcetype": "out-3"}, {"sourcetype": "package"}, {"sourcetype": "protocol"}, {"sourcetype": "ps"}, {"sourcetype": "stream:arp"}, {"sourcetype": "stream:dhcp"}, {"sourcetype": "stream:dns"}, {"sourcetype": "stream:http"}, {"sourcetype": "stream:icmp"}, {"sourcetype": "stream:igmp"}, {"sourcetype": "stream:ip"}, {"sourcetype": "stream:mysql"}, {"sourcetype": "stream:smb"}, {"sourcetype": "stream:smtp"}, {"sourcetype": "stream:tcp"}, {"sourcetype": "stream:udp"}, {"sourcetype": "symantec:ep:agent:file"}, {"sourcetype": "symantec:ep:agt_system:file"}, {"sourcetype": "symantec:ep:behavior:file"}, {"sourcetype": "symantec:ep:packet:file"}, {"sourcetype": "symantec:ep:risk:file"}, {"sourcetype": "symantec:ep:scm_system:file"}, {"sourcetype": "symantec:ep:security:file"}, {"sourcetype": "symantec:ep:traffic:file"}, {"sourcetype": "syslog"}, {"sourcetype": "time"}, {"sourcetype": "top"}, {"sourcetype": "usersWithLoginPrivs"}, {"sourcetype": "vmstat"}, {"sourcetype": "who"}, {"sourcetype": "yum-too_small"}]'}
-            '''
+
+        if self._use_static_env_map is True:
+            self.env_map = '''
+                {'sourcetypes': '[{"sourcetype": "PerfmonMk:Process"}, {"sourcetype": "Script:GetEndpointInfo"}, {"sourcetype": "Script:InstalledApps"}, {"sourcetype": "Script:ListeningPorts"}, {"sourcetype": "Unix:ListeningPorts"}, {"sourcetype": "Unix:SSHDConfig"}, {"sourcetype": "Unix:Service"}, {"sourcetype": "Unix:Update"}, {"sourcetype": "Unix:Uptime"}, {"sourcetype": "Unix:UserAccounts"}, {"sourcetype": "Unix:Version"}, {"sourcetype": "WinEventLog:Application"}, {"sourcetype": "WinEventLog:Microsoft-Windows-AppLocker/EXE and DLL"}, {"sourcetype": "WinEventLog:Microsoft-Windows-AppLocker/Packaged app-Execution"}, {"sourcetype": "WinEventLog:Microsoft-Windows-PowerShell/Operational"}, {"sourcetype": "WinEventLog:Security"}, {"sourcetype": "WinEventLog:System"}, {"sourcetype": "WinHostMon"}, {"sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"}, {"sourcetype": "access_combined"}, {"sourcetype": "alternatives"}, {"sourcetype": "amazon-ssm-agent"}, {"sourcetype": "amazon-ssm-agent-too_small"}, {"sourcetype": "apache_error"}, {"sourcetype": "aws:cloudtrail"}, {"sourcetype": "aws:cloudwatch"}, {"sourcetype": "aws:cloudwatch:guardduty"}, {"sourcetype": "aws:cloudwatchlogs"}, {"sourcetype": "aws:cloudwatchlogs:vpcflow"}, {"sourcetype": "aws:config:rule"}, {"sourcetype": "aws:description"}, {"sourcetype": "aws:elb:accesslogs"}, {"sourcetype": "aws:rds:audit"}, {"sourcetype": "aws:rds:error"}, {"sourcetype": "aws:s3:accesslogs"}, {"sourcetype": "bandwidth"}, {"sourcetype": "bash_history"}, {"sourcetype": "bootstrap"}, {"sourcetype": "cisco:asa"}, {"sourcetype": "cloud-init"}, {"sourcetype": "cloud-init-output"}, {"sourcetype": "code42:api"}, {"sourcetype": "code42:computer"}, {"sourcetype": "code42:org"}, {"sourcetype": "code42:security"}, {"sourcetype": "code42:user"}, {"sourcetype": "config_file"}, {"sourcetype": "cpu"}, {"sourcetype": "cron-too_small"}, {"sourcetype": "df"}, {"sourcetype": "dmesg"}, {"sourcetype": "dpkg"}, {"sourcetype": "error-too_small"}, {"sourcetype": "errors"}, {"sourcetype": "errors-too_small"}, {"sourcetype": "ess_content_importer"}, {"sourcetype": "hardware"}, {"sourcetype": "history-2"}, {"sourcetype": "interfaces"}, {"sourcetype": "iostat"}, {"sourcetype": "lastlog"}, {"sourcetype": "linux_audit"}, {"sourcetype": "linux_secure"}, {"sourcetype": "localhost-5"}, {"sourcetype": "lsof"}, {"sourcetype": "maillog-too_small"}, {"sourcetype": "ms:aad:audit"}, {"sourcetype": "ms:aad:signin"}, {"sourcetype": "ms:o365:management"}, {"sourcetype": "ms:o365:reporting:messagetrace"}, {"sourcetype": "netstat"}, {"sourcetype": "o365:management:activity"}, {"sourcetype": "openPorts"}, {"sourcetype": "osquery:info"}, {"sourcetype": "osquery:results"}, {"sourcetype": "osquery:warning"}, {"sourcetype": "out-3"}, {"sourcetype": "package"}, {"sourcetype": "protocol"}, {"sourcetype": "ps"}, {"sourcetype": "stream:arp"}, {"sourcetype": "stream:dhcp"}, {"sourcetype": "stream:dns"}, {"sourcetype": "stream:http"}, {"sourcetype": "stream:icmp"}, {"sourcetype": "stream:igmp"}, {"sourcetype": "stream:ip"}, {"sourcetype": "stream:mysql"}, {"sourcetype": "stream:smb"}, {"sourcetype": "stream:smtp"}, {"sourcetype": "stream:tcp"}, {"sourcetype": "stream:udp"}, {"sourcetype": "symantec:ep:agent:file"}, {"sourcetype": "symantec:ep:agt_system:file"}, {"sourcetype": "symantec:ep:behavior:file"}, {"sourcetype": "symantec:ep:packet:file"}, {"sourcetype": "symantec:ep:risk:file"}, {"sourcetype": "symantec:ep:scm_system:file"}, {"sourcetype": "symantec:ep:security:file"}, {"sourcetype": "symantec:ep:traffic:file"}, {"sourcetype": "syslog"}, {"sourcetype": "time"}, {"sourcetype": "top"}, {"sourcetype": "usersWithLoginPrivs"}, {"sourcetype": "vmstat"}, {"sourcetype": "who"}, {"sourcetype": "yum-too_small"}]'}
+                '''
+        else:
+            self.env_map = self.map_env()
+
+        logger.debug(f"Splunk environment map: {self.env_map}")
 
     def run(self, req: SplunkRequest) -> SplunkResponse:
         """
@@ -76,11 +88,21 @@ class Splunk(BaseTool):
         """
         logger.debug(f"Running Splunk tool with user input: {req.question}")
 
-        spl = self.generate_spl(req.question)
+        try:
+            spl = self.generate_spl(req.question)
+        except Exception as e:
+            logger.error(f"Error generating Splunk query: {e}")
+            raise GenerationError("Error generating Splunk query. Please try again later.")
+
 
         results = self.run_search(spl)
 
-        answer = self.answer_user_question(req.question, results)
+
+        try:
+            answer = self.answer_user_question(req.question, results)
+        except Exception as e:
+            logger.error(f"Error answering user question: {e}")
+            raise GenerationError("Error answering user question. Please try again later.")
 
         return SplunkResponse(answer=answer, spl=spl if req.return_spl else None)
 
@@ -112,7 +134,7 @@ class Splunk(BaseTool):
         The following is useful information about the environment.
         ''' + str(self.env_map)
 
-        response = client.chat(model='llama3', messages=[
+        response = client.chat(model=self._llm_model, messages=[
                 {
                     'role': 'user',
                     'content': instructions + "\nuser input:" + user_input
@@ -181,7 +203,7 @@ class Splunk(BaseTool):
         - If you do not understand the question, summerize the search results.
         - If search results is emply, just say "No search data was returned".
         '''
-        response = client.chat(model='llama3', messages=[
+        response = client.chat(model=self._llm_model, messages=[
                 {
                     'role': 'user',
                     'content': instructions + "\nUser Question: " + question + "\nSearch Results:\n" + search_results
@@ -195,3 +217,9 @@ class Splunk(BaseTool):
 
         logger.debug(f"Answer: '{analysis}'")
         return analysis
+
+    def map_env(self) -> str:
+        logger.debug("Mapping Splunk envirnoment...")
+        spl = "index!=_* |stats count by sourcetype |table sourcetype"
+        env_map = json.dumps(json.loads(self.run_search(spl))[0])
+        return str(env_map)
