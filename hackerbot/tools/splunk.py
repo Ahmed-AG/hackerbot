@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field
 from typing import Generator
+from splunklib import client
+from splunklib import results
 import logging
-import requests
 import time
 import json
-import uuid
 
 from hackerbot.tools.base_tool import (
     BaseTool,
@@ -49,6 +49,8 @@ class SplunkToolConfig(BaseToolConfig):
 
 class SplunkTool(BaseTool):
     _config: SplunkToolConfig
+
+    _splunk_service: client.Service | None = None
 
     def __init__(self,
         config: SplunkToolConfig,
@@ -96,12 +98,12 @@ class SplunkTool(BaseTool):
             raise GenerationError("Error generating Splunk query. Please try again later.")
 
         try:
-            results = self.run_search(spl)
+            search_results = json.dumps(self.run_search(spl))
         except Exception as e:
             logger.error(f"Error running Splunk query: {e}")
             raise QueryError("Error running Splunk query. Please try again later.")
 
-        self._search_results = results
+        self._search_results = search_results
 
         try:
             answer = self.analyze_results()
@@ -144,45 +146,56 @@ class SplunkTool(BaseTool):
             for chunk in response:
                 yield chunk['message']['content']
 
-    def run_search(self, spl: str):
+    def _get_splunk_service(self) -> client.Service:
+        """
+            Get the Splunk service object
+        """
+        logger.debug("Getting Splunk service object")
+
+        if self._splunk_service is None:
+            self._splunk_service = client.connect(
+                host=self._config.splunk_host,
+                port=self._config.splunk_port,
+                username=self._config.splunk_user,
+                password=self._config.splunk_pass,
+                verify=self._config.verify_ssl,
+            )
+
+        return self._splunk_service
+
+    def run_search(self, spl: str) -> list:
         logger.debug("Running Splunk query")
 
-        scheme = 'https'
+        service = self._get_splunk_service()
+
         search_command = "search " + spl
 
-        unique_id  = uuid.uuid4().hex
+        extra_kwargs = {
+            'earliest_time' : '1',
+            'latest_time' : 'now',
+        }
 
-        post_data = { 'id' : unique_id,
-                    'search' : search_command,
-                    'earliest_time' : '1',
-                    'latest_time' : 'now',
-                    }
-
-        splunk_search_base_url =  f"{scheme}://{self._config.splunk_host}:{self._config.splunk_port}/servicesNS/{self._config.splunk_user}/search/search/jobs"
-        resp = requests.post(splunk_search_base_url, data = post_data, verify = self._config.verify_ssl, auth = (self._config.splunk_user, self._config.splunk_pass))
-
-        # print(resp.text)
-
-        is_job_completed = ''
-
-        while(is_job_completed != 'DONE'):
-            time.sleep(5)
-            get_data = {'output_mode' : 'json'}
-            job_status_base_url = f"{scheme}://{self._config.splunk_host}:{self._config.splunk_port}/servicesNS/{self._config.splunk_user}/search/search/jobs/{unique_id}"
-            resp_job_status = requests.post(job_status_base_url, data = get_data, verify = self._config.verify_ssl, auth = (self._config.splunk_user, self._config.splunk_pass))
-            print(resp_job_status)
-            resp_job_status_data = resp_job_status.json()
-            is_job_completed = resp_job_status_data['entry'][0]['content']['dispatchState']
-            print("Current job status is {}".format(is_job_completed))
-
-        splunk_summary_base_url = f"{scheme}://{self._config.splunk_host}:{self._config.splunk_port}/servicesNS/{self._config.splunk_user}/search/search/jobs/{unique_id}/results?count=0"
-        splunk_summary_results = requests.get(splunk_summary_base_url, data = get_data, verify = self._config.verify_ssl, auth = (self._config.splunk_user, self._config.splunk_pass))
-        splunk_summary_data = splunk_summary_results.json()
+        job = service.jobs.create(
+            search_command,
+            **extra_kwargs
+        )
 
 
-        results = json.dumps(splunk_summary_data['results'])
-        logger.debug(f"Search results: '{results}'")
-        return results
+        while not job.is_done():
+            time.sleep(2)
+            pass
+
+        events = []
+        for result in results.JSONResultsReader(job.results(output_mode='json')):
+            if isinstance(result, results.Message):
+                # Diagnostic messages may be returned in the results
+                logger.debug(f'{result.type}: {result.message}')
+            elif isinstance(result, dict):
+                # Normal events are returned as dicts
+                events.append(result)
+
+        logger.debug(f"Search results: '{events}'")
+        return events
 
     def _map_env(self) -> str:
         logger.debug("Mapping Splunk envirnoment...")

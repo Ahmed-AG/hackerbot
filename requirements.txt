@@ -5,3 +5,4 @@ python-dotenv==1.0.1
 uvicorn==0.30.3
 ollama==0.3.0
 requests>=2.32.3
+splunk-sdk==2.0.2
