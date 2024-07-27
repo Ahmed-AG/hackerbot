@@ -1,7 +1,8 @@
 from .base_tool import BaseTool
 
 from .splunk import (
-    Splunk,
+    SplunkTool,
     SplunkRequest,
     SplunkResponse,
+    SplunkToolConfig,
 )

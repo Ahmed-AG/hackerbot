@@ -1,24 +1,59 @@
 import argparse
-
+import sys
 from .version import __version__
-from .tools import Splunk, SplunkRequest
+from .tools import SplunkTool, SplunkRequest, SplunkToolConfig
 from .logging import (
     logger,
     set_level,
 )
 from .exceptions import (
     GenerationError,
+    QueryError,
 )
 
 
 def run_splunk(args: argparse.Namespace) -> None:
     llm = get_llm(args)
-    splunk = Splunk(
+
+    config = SplunkToolConfig(
         llm_model=llm,
+    )
+    splunk = SplunkTool(
+        config=config,
+    )
+
+    request = SplunkRequest(
+        question=args.input,
+        return_spl=args.print_spl,
     )
 
     try:
-        response = splunk.run(SplunkRequest(question=args.question, return_spl=args.print_spl))
+        if args.generate:
+            response = splunk.generate_spl(question=args.input)
+            print(f"\n\nSPL Query: '{response}'")
+
+        elif args.query:
+            response = splunk.run_search(spl=args.input)
+            print(f"\n\nSearch Results:\n\n{response}")
+
+        elif args.analyze:
+            print(args.spl_query_results)
+            if args.spl_query_results == "":
+                print("SQL query results are required when only performing an analysis using -a/--analyze. Please provide the SQL query results using the --sql-query-results flag. Refer to the help (-h/--help) for more information.")
+                exit(1)
+            response = splunk.analyze_results(question=args.input, search_results=args.spl_query_results)
+            print(f"\n\nAnalysis:\n\n{response}")
+        else:
+            response = splunk.run(request)
+            if args.print_spl:
+                print(f"\n\nSPL Query: '{response.spl}'")
+
+            print("\n\nAnswer:\n\n")
+            print(response.answer)
+    except QueryError as e:
+        logger.error(f"Error running Splunk tool: {e}")
+        print("Could not query Splunk. Please check your LLM configuration.")
+        exit(1)
     except GenerationError as e:
         logger.error(f"Error running Splunk tool: {e}")
         print("Could not generate a response. Please check your LLM configuration.")
@@ -27,12 +62,6 @@ def run_splunk(args: argparse.Namespace) -> None:
         logger.error(f"Error running Splunk tool: {e}")
         print("Error running Splunk tool. Please try again later.")
         exit(1)
-
-    if args.print_spl:
-        print(f"\n\nSPL Query: '{response.spl}'")
-
-    print("\n\nAnswer:\n\n")
-    print(response.answer)
 
 def get_llm(argparser: argparse.Namespace) -> str:
     if argparser.use_llama3:
@@ -44,14 +73,51 @@ def get_llm(argparser: argparse.Namespace) -> str:
 
 def add_splunk_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
-        "question",
-        help="The question to ask Splunk",
+        "input",
+        help="Input for the Splunk tool. This can be a question or an SPL query depending on the action specified",
     )
+
     parser.add_argument(
         "--print-spl",
         action="store_true",
         default=False,
         help="Print the SPL query",
+    )
+    parser.add_argument(
+        "--spl-query-results",
+        dest="spl_query_results",
+        type=str,
+        default="",
+        help="SQL query results. Used with the -a/--analyze flag to supply the own SQL query results",
+    )
+    actions = parser.add_argument_group(
+        "Actions",
+        description="Actions to perform with the Splunk tool. By default, the tool will generate the SPL query, query Splunk, and analyze the response.",
+    )
+    action_group = actions.add_mutually_exclusive_group()
+    action_group.add_argument(
+        "-g",
+        "--generate",
+        dest="generate",
+        action="store_true",
+        default=False,
+        help="Only generate the SPL Query. Expects a question as input.",
+    )
+    action_group.add_argument(
+        "-q",
+        "--query",
+        dest="query",
+        action="store_true",
+        default=False,
+        help="Only query splunk. Expects a SPL query as input.",
+    )
+    action_group.add_argument(
+        "-a",
+        "--analyze",
+        dest="analyze",
+        action="store_true",
+        default=False,
+        help="Only analyze the response from Splunk. Expects a question as input and the SQL query results using the --sql-query-results flag.",
     )
 
 subcommands = {
