@@ -1,5 +1,5 @@
 from ollama import Client, ChatResponse
-from typing import cast
+from typing import cast, Generator
 from pydantic import BaseModel, Field
 import logging
 
@@ -94,7 +94,18 @@ class BaseTool:
 
         return typed_response
 
-    def analyze_results(self, question: str | None = None, search_results: str | None = None) -> str:
+    def _stream_call_llm(self, messages: list[dict],  model: str | None = None) -> Generator[ChatResponse, None, None]:
+        """
+            Call the LLM model
+        """
+        client = self._get_llm_client()
+        if model is None:
+            model = self._config.llm_model
+        stream = client.chat(model=model, messages=messages, stream=True)
+        for chunk in stream:
+            yield chunk
+
+    def analyze_results(self, question: str | None = None, search_results: str | None = None, stream: bool = True) -> str | Generator[str, None, None]:
         logger.debug("Answering user question")#
 
         # Check if question is set. Use the question set in the class if not
@@ -112,18 +123,22 @@ class BaseTool:
 
         instructions = self._get_analysis_instructions()
 
-        response = self._call_llm(messages=[
-                {
-                    'role': 'user',
-                    'content': instructions + "\nUser Question: " + question + "\nSearch Results:\n" + search_results
-                },
-            ]
-        )
+        messages = [
+            {
+                'role': 'user',
+                'content': instructions + "\nUser Question: " + question + "\nSearch Results:\n" + search_results
+            },
+        ]
 
-        analysis = response["message"]["content"]
-
-        logger.debug(f"Splunk Task Analysis: '{analysis}'")
-        return analysis
+        if stream == False:
+            response = self._call_llm(messages=messages)
+            analysis = response["message"]["content"]
+            logger.debug(f"Splunk Task Analysis: '{analysis}'")
+            return analysis
+        else:
+            response = self._stream_call_llm(messages=messages)
+            for chunk in response:
+                yield chunk['message']['content']
 
     def _get_analysis_instructions(self) -> str:
         """

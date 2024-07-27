@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Generator
 import logging
 import requests
 import time
@@ -113,7 +114,7 @@ class SplunkTool(BaseTool):
 
         return SplunkResponse(answer=answer, spl=spl if req.return_spl else None)
 
-    def generate_spl(self, question: str | None = None) -> str:
+    def generate_spl(self, question: str | None = None, stream: bool = False) -> str | Generator[str, None, None]:
         logger.debug("Generating Splunk query")
 
         if question is None:
@@ -123,19 +124,25 @@ class SplunkTool(BaseTool):
 
         instructions = self._get_spl_generation_instructions()
 
-        response = self._call_llm(messages=[
-                {
-                    'role': 'user',
-                    'content': instructions + "\nuser input:" + question
-                },
-            ]
-        )
+        messages =[
+            {
+                'role': 'user',
+                'content': instructions + "\nuser input:" + question
+            },
+        ]
 
-        spl = response['message']['content']
+        if stream == False:
+            response = self._call_llm(messages=messages)
 
-        logger.debug(f"Generated Splunk query: '{spl}'")
+            spl = response['message']['content']
 
-        return spl
+            logger.debug(f"Generated Splunk query: '{spl}'")
+
+            return spl
+        else:
+            response = self._stream_call_llm(messages=messages)
+            for chunk in response:
+                yield chunk['message']['content']
 
     def run_search(self, spl: str):
         logger.debug("Running Splunk query")

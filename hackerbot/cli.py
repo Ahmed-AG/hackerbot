@@ -29,20 +29,31 @@ def run_splunk(args: argparse.Namespace) -> None:
 
     try:
         if args.generate:
-            response = splunk.generate_spl(question=args.input)
-            print(f"\n\nSPL Query: '{response}'")
-
+            if args.stream:
+                response = splunk.generate_spl(question=args.input, stream=True)
+                print(f"\n\nSPL Query: '", end="", flush=True)
+                for chunk in response:
+                    print(chunk, end="", flush=True)
+                print("'", flush=True)
+            else:
+                response = splunk.generate_spl(question=args.input)
+                print(f"\n\nSPL Query: '{response}'")
         elif args.query:
             response = splunk.run_search(spl=args.input)
             print(f"\n\nSearch Results:\n\n{response}")
 
         elif args.analyze:
-            print(args.spl_query_results)
             if args.spl_query_results == "":
                 print("SQL query results are required when only performing an analysis using -a/--analyze. Please provide the SQL query results using the --sql-query-results flag. Refer to the help (-h/--help) for more information.")
                 exit(1)
-            response = splunk.analyze_results(question=args.input, search_results=args.spl_query_results)
-            print(f"\n\nAnalysis:\n\n{response}")
+            if args.stream:
+                response = splunk.analyze_results(question=args.input, search_results=args.spl_query_results, stream=True)
+                print(f"\n\nAnalysis:\n\n", end="", flush=True)
+                for chunk in response:
+                    print(chunk, end="", flush=True)
+            else:
+                response = splunk.analyze_results(question=args.input, search_results=args.spl_query_results)
+                print(f"\n\nAnalysis:\n\n{response}")
         else:
             response = splunk.run(request)
             if args.print_spl:
@@ -168,7 +179,7 @@ def main() -> None:
         default=False,
         help="Enable debug logging",
     )
-
+    argparser.add_argument('-s', '--stream', action='store_true', default=True, help="Enable output streaming. Default (True)")
     argparser.add_argument('--version', '-V', action='version', version=f'%(prog)s v{__version__}')
 
     args = argparser.parse_args()
