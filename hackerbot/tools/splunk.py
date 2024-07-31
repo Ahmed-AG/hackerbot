@@ -259,5 +259,7 @@ class SplunkTool(BaseTool):
         - When asked about user's activities, do not use sourcetype in the query.
         - When asked about IP addresses, list all of them.
         - When asked about "count", or get "all" then use the stats commands instead of a table
+        - Connect to mean dest_ip=
+        - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
         The following is useful information about the environment.
         ''' + str(self.env_map)
