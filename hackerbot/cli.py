@@ -80,7 +80,7 @@ def get_llm(argparser: argparse.Namespace) -> str:
     elif argparser.use_llama3_1:
         return "llama3.1"
     else:
-        return "llama3"
+        return "llama3.1"
 
 def add_splunk_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(

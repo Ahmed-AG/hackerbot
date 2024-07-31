@@ -9,7 +9,7 @@ logger = logging.getLogger("hackerbot")
 
 
 class BaseToolConfig(BaseModel):
-    llm_model: str = "llama3"
+    llm_model: str = "llama3.1"
     llm_url: str = Field(
         default_factory=lambda: env_var_config_default_factory("llm_url", "LLM_URL", error_on_empty=True),
     )
