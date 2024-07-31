@@ -29,8 +29,8 @@ def run_splunk(args: argparse.Namespace) -> None:
 
     try:
         if args.generate:
-            if args.stream:
-                response = splunk.generate_spl(question=args.input, stream=True)
+            if not args.no_stream:
+                response = splunk.stream_generate_spl(question=args.input)
                 print(f"\n\nSPL Query: '", end="", flush=True)
                 for chunk in response:
                     print(chunk, end="", flush=True)
@@ -46,8 +46,8 @@ def run_splunk(args: argparse.Namespace) -> None:
             if args.spl_query_results == "":
                 print("SQL query results are required when only performing an analysis using -a/--analyze. Please provide the SQL query results using the --sql-query-results flag. Refer to the help (-h/--help) for more information.")
                 exit(1)
-            if args.stream:
-                response = splunk.analyze_results(question=args.input, search_results=args.spl_query_results, stream=True)
+            if not args.no_stream:
+                response = splunk.stream_analyze_results(question=args.input, search_results=args.spl_query_results)
                 print(f"\n\nAnalysis:\n\n", end="", flush=True)
                 for chunk in response:
                     print(chunk, end="", flush=True)
@@ -63,7 +63,7 @@ def run_splunk(args: argparse.Namespace) -> None:
             print(response.answer)
     except QueryError as e:
         logger.error(f"Error running Splunk tool: {e}")
-        print("Could not query Splunk. Please check your LLM configuration.")
+        print("Could not query Splunk. Please check your Splunk configuration.")
         exit(1)
     except GenerationError as e:
         logger.error(f"Error running Splunk tool: {e}")
@@ -160,7 +160,7 @@ def main() -> None:
     llm_type_group.add_argument(
         "--use-llama3",
         action="store_true",
-        default=True,
+        default=False,
         help="Use the llama3 model",
     )
     llm_type_group.add_argument(
@@ -179,7 +179,7 @@ def main() -> None:
         default=False,
         help="Enable debug logging",
     )
-    argparser.add_argument('-s', '--stream', action='store_true', default=True, help="Enable output streaming. Default (True)")
+    argparser.add_argument('-s', '--no-stream', dest="no_stream", action='store_true', default=False, help="Disable output streaming. Default Enabled")
     argparser.add_argument('--version', '-V', action='version', version=f'%(prog)s v{__version__}')
 
     args = argparser.parse_args()

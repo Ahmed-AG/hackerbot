@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Generator
+from typing import Generator, Literal
 from splunklib import client
 from splunklib import results
 import logging
@@ -92,18 +92,19 @@ class SplunkTool(BaseTool):
         self._question = req.question
 
         try:
-            spl = self.generate_spl(req.question)
+            spl = self.generate_spl()
+            logger.debug(f"Generated Splunk query: '{spl}'")
         except Exception as e:
             logger.error(f"Error generating Splunk query: {e}")
             raise GenerationError("Error generating Splunk query. Please try again later.")
 
         try:
-            search_results = json.dumps(self.run_search(spl))
+            search_results = self.run_search(spl, output_mode='csv')
         except Exception as e:
             logger.error(f"Error running Splunk query: {e}")
             raise QueryError("Error running Splunk query. Please try again later.")
 
-        self._search_results = search_results
+        self._search_results = "".join(search_results)
 
         try:
             answer = self.analyze_results()
@@ -116,9 +117,7 @@ class SplunkTool(BaseTool):
 
         return SplunkResponse(answer=answer, spl=spl if req.return_spl else None)
 
-    def generate_spl(self, question: str | None = None, stream: bool = False) -> str | Generator[str, None, None]:
-        logger.debug("Generating Splunk query")
-
+    def _prepare_generate_spl(self, question: str | None = None) -> list[dict[str, str]]:
         if question is None:
             if self._question is None:
                 raise ValueError("Question is not set")
@@ -132,19 +131,29 @@ class SplunkTool(BaseTool):
                 'content': instructions + "\nuser input:" + question
             },
         ]
+        return messages
 
-        if stream == False:
-            response = self._call_llm(messages=messages)
+    def generate_spl(self, question: str | None = None) -> str:
+        logger.debug("Generating Splunk query")
 
-            spl = response['message']['content']
+        messages = self._prepare_generate_spl(question=question)
 
-            logger.debug(f"Generated Splunk query: '{spl}'")
+        response = self._call_llm(messages=messages)
 
-            return spl
-        else:
-            response = self._stream_call_llm(messages=messages)
-            for chunk in response:
-                yield chunk['message']['content']
+        spl = response['message']['content']
+
+        logger.debug(f"Generated Splunk query: '{spl}'")
+
+        return spl
+
+    def stream_generate_spl(self, question: str | None = None) -> Generator[str, None, None]:
+        logger.debug("Generating Splunk query")
+
+        messages = self._prepare_generate_spl(question=question)
+
+        response = self._stream_call_llm(messages=messages)
+        for chunk in response:
+            yield chunk['message']['content']
 
     def _get_splunk_service(self) -> client.Service:
         """
@@ -163,7 +172,13 @@ class SplunkTool(BaseTool):
 
         return self._splunk_service
 
-    def run_search(self, spl: str) -> list:
+    def run_search(self, spl: str, output_mode: Literal['json', 'csv'] = 'csv') -> list[dict] | list[str]:
+        """
+            Run a Splunk search query
+            Returns:
+            - A list of dictionaries if output_mode is 'json'
+            - A list of strings if output_mode is 'csv'. Each string is a row from the CSV
+        """
         logger.debug("Running Splunk query")
 
         service = self._get_splunk_service()
@@ -186,13 +201,26 @@ class SplunkTool(BaseTool):
             pass
 
         events = []
-        for result in results.JSONResultsReader(job.results(output_mode='json')):
-            if isinstance(result, results.Message):
-                # Diagnostic messages may be returned in the results
-                logger.debug(f'{result.type}: {result.message}')
-            elif isinstance(result, dict):
-                # Normal events are returned as dicts
-                events.append(result)
+        if output_mode == 'json':
+            for result in results.JSONResultsReader(job.results(output_mode=output_mode)):
+                if isinstance(result, results.Message):
+                    # Diagnostic messages may be returned in the results
+                    logger.debug(f'{result.type}: {result.message}')
+                elif isinstance(result, dict):
+                    # Normal events are returned as dicts
+                    events.append(result)
+                else:
+                    logger.debug(f'Unknown result type: {result}')
+        elif output_mode == 'csv':
+            for result in job.results(output_mode=output_mode):
+                if isinstance(result, results.Message):
+                    # Diagnostic messages may be returned in the results
+                    logger.debug(f'{result.type}: {result.message}')
+                elif isinstance(result, str):
+                    # Normal events are returned as strings
+                    events.append(result)
+                elif isinstance(result, bytes):
+                    events.append(result.decode('utf-8'))
 
         logger.debug(f"Search results: '{events}'")
         return events

@@ -105,9 +105,7 @@ class BaseTool:
         for chunk in stream:
             yield chunk
 
-    def analyze_results(self, question: str | None = None, search_results: str | None = None, stream: bool = True) -> str | Generator[str, None, None]:
-        logger.debug("Answering user question")#
-
+    def _prepare_analyze_results(self, question: str | None = None, search_results: str | None = None) -> list[dict[str, str]]:
         # Check if question is set. Use the question set in the class if not
         if question is None:
             if self._question is None:
@@ -129,16 +127,26 @@ class BaseTool:
                 'content': instructions + "\nUser Question: " + question + "\nSearch Results:\n" + search_results
             },
         ]
+        return messages
 
-        if stream == False:
-            response = self._call_llm(messages=messages)
-            analysis = response["message"]["content"]
-            logger.debug(f"Splunk Task Analysis: '{analysis}'")
-            return analysis
-        else:
-            response = self._stream_call_llm(messages=messages)
-            for chunk in response:
-                yield chunk['message']['content']
+    def analyze_results(self, question: str | None = None, search_results: str | None = None) -> str:
+        logger.debug("Answering user question")
+
+        messages = self._prepare_analyze_results(question=question, search_results=search_results)
+
+        response = self._call_llm(messages=messages)
+        analysis = response["message"]["content"]
+        logger.debug(f"Splunk Task Analysis: '{analysis}'")
+        return analysis
+
+    def stream_analyze_results(self, question: str | None = None, search_results: str | None = None) -> Generator[str, None, None]:
+        logger.debug("Answering user question")
+
+        messages = self._prepare_analyze_results(question=question, search_results=search_results)
+
+        response = self._stream_call_llm(messages=messages)
+        for chunk in response:
+            yield chunk['message']['content']
 
     def _get_analysis_instructions(self) -> str:
         """
