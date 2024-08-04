@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "hackerbot"
+version = "2.0.0-alpha2"
+description = "An AI-CyberSecurity Bot"
+authors = [
+    "Ahmed Abugharbia <ahmed@cyberdojo.cloud>",
+    "Mohanad Abugharbia <mgharbieh.01@gmail.com>",
+]
+maintainers = [
+    "Ahmed Abugharbia <ahmed@cyberdojo.cloud>",
+    "Mohanad Abugharbia <mgharbieh.01@gmail.com>",
+]
+readme = "README.md"
+
+repository = "https://github.com/Ahmed-AG/hackerbot"
+
+[tool.poetry.urls]
+"Source Code" = "https://github.com/Ahmed-AG/hackerbot/tree/main/hackerbot"
+"Issues" = "https://github.com/Ahmed-AG/hacketbot/issues"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.111.0"
+fastapi-cli = "0.0.5"
+python-dotenv = "1.0.1"
+uvicorn = "0.30.3"
+ollama = "0.3.0"
+requests = ">=2.32.3"
+splunk-sdk = "2.0.2"
+
+
+[tool.poetry.group.build]
+optional = true
+
+[tool.poetry.group.build.dependencies]
+twine = "5.1.1"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.2"
+pytest-cov = "^5.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+hackerbot = 'hackerbot.cli:main'
+hackerbot_cli = 'hackerbot.cli:main'
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/8.3.x/reference/reference.html
+# --strict-config       any warnings encountered while parsing the `pytest`
+#                       section of the configuration file raise errors.
+
+addopts = "--strict-config --cov=hackerbot"
