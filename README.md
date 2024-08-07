@@ -1,4 +1,4 @@
-hackerBot V2-Alpha is happening [here](https://github.com/Ahmed-AG/hackerbot/tree/v2)
+hackerBot v2 is happening [here](https://github.com/Ahmed-AG/hackerbot/tree/v2)
 # hackerBot
 An AI-CyberSecurity Bot Based on OpenAI's Models. hackerbot is being trained to do various Cyber Security tasks.
 You can either run hackerBot in a docker container (the fast option) or install it locally
