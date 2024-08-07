@@ -3,8 +3,7 @@ An AI-CyberSecurity Bot. HackerBot is being trained to help investigate security
 
 ## prerequisites
 ### Ollama
-Ollama is used to host llama3.1 (and other models) locally. Download and run [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) using [Ollama](https://ollama.com/)
-
+Ollama is used to host [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) (and other models) locally. Download and run [Ollama here](https://ollama.com/).
 ### Splunk Instance
 HackerBot helps security analysts by searching data in Splunk. You will need an accessible instance Splunk instance.
 
