@@ -7,18 +7,19 @@ Ollama is used to host [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) (an
 ### Splunk Instance
 HackerBot helps security analysts by searching data in Splunk. You will need an accessible instance Splunk instance.
 
-## Install
+## Use Hackerbot
 
+#### Install
 ```bash
 pip install hackerbot
 ```
 
-## Use
+#### Configure
 Set initial configuration:
 ```bash
 hackerbot_cli.py configure
 ```
-
+#### Run
 Run hackerbot against Splunk:
 ```bash
 hackerbot_cli.py splunk "show me http and https network traffic going to 8.8.8.8"
