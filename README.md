@@ -2,24 +2,24 @@
 An AI-CyberSecurity Bot. HackerBot is being trained to help investigate security incidents. We started by teaching HackerBot how to use [Splunk](https://www.splunk.com/).
 
 ## prerequisites
-### Ollama
+#### Ollama
 Ollama is used to host [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) (and other models) locally. Download and run [Ollama here](https://ollama.com/).
-### Splunk Instance
+#### Splunk Instance
 HackerBot helps security analysts by searching data in Splunk. You will need an accessible instance Splunk instance.
 
 ## Use Hackerbot
 
-### Install Hackerbot
+#### Install Hackerbot
 ```bash
 pip install hackerbot
 ```
 
-### Configure Hackerbot
+#### Configure Hackerbot
 Set initial configuration:
 ```bash
 hackerbot_cli.py configure
 ```
-### Run Hackerbot
+#### Run Hackerbot
 Run hackerbot against Splunk:
 ```bash
 hackerbot_cli.py splunk "show me http and https network traffic going to 8.8.8.8"
