@@ -1,18 +1,24 @@
 # HackerBot
-An AI-CyberSecurity Bot. HackerBot is being trained to help investigate security incidents. We started by teaching HackerBot how to use [Splunk](https://www.splunk.com/){target="_blank"}
-You can either run hackerBot in a docker container (the fast option) or install it locally
+An AI-CyberSecurity Bot. HackerBot is being trained to help investigate security incidents. We started by teaching HackerBot how to use [Splunk](https://www.splunk.com/).
 
 ## prerequisites
 ### Ollama
-Ollama is used to host llama3.1 (and other models) locally. Download and run [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/){target="_blank"} using [Ollama] (https://ollama.com/){target="_blank"}
+Ollama is used to host llama3.1 (and other models) locally. Download and run [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) using [Ollama] (https://ollama.com/)
 
 ### Splunk Instance
-HackerBot helps security analysts by searching data in Splunk. You will need an accessible instance  Splunk instance.
+HackerBot helps security analysts by searching data in Splunk. You will need an accessible instance Splunk instance.
 
-## Run in Docker
+## Install
 
+```bash
+pip install hackerbot
+```
 
-## Run locally
+## Use
+
+```bash
+hackerbot_cli.py splunk "show me http and https network traffic going to 8.8.8.8"
+```
 
 ## Development
 HackerBot is built using Python 3.11. We use [Poetry](https://python-poetry.org/) to manage dependencies. To install poetry run:
