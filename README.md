@@ -15,7 +15,12 @@ pip install hackerbot
 ```
 
 ## Use
+Set initial configuration:
+```bash
+hackerbot_cli.py configure
+```
 
+Run hackerbot against Splunk:
 ```bash
 hackerbot_cli.py splunk "show me http and https network traffic going to 8.8.8.8"
 ```
