@@ -1,5 +1,5 @@
 from ollama import Client, ChatResponse
-from typing import cast, Generator
+from typing import cast, Generator, Literal
 from pydantic import BaseModel, Field
 import logging
 
@@ -9,16 +9,25 @@ logger = logging.getLogger("hackerbot")
 
 
 class BaseToolConfig(BaseModel):
-    llm_model: str = "llama3.1"
+    llm_model: Literal[
+        'llama3',
+        'llama3.1',
+        'llama3.1:70b',
+        'llama3.1:405b',
+    ] = Field(
+        default="llama3.1",
+        description="The LLM model to use. Can be 'llama3' or 'llama3.1'. Default is 'llama3.1'",
+    )
     llm_url: str = Field(
         default_factory=lambda: env_var_config_default_factory("llm_url", "LLM_URL", error_on_empty=True),
     )
-    verify_ssl: bool | None = Field(
-        default_factory=lambda: env_var_config_default_factory("verify_ssl", "VERIFY_SSL", error_on_empty=False).lower() == "true",
+    verify_ssl: bool = Field(
+        default_factory=lambda: env_var_config_default_factory("verify_ssl", "VERIFY_SSL", error_on_empty=False).lower() != "false",
     )
 
+
 class BaseTool:
-    _supported_models: list[str] = ["llama3", "llama3.1"]
+    _supported_models: list[str] = ["llama3", "llama3.1", "llama3.1:70b", "llama3.1:405b"]
 
     _llm_client: Client | None = None
     _config: BaseToolConfig
@@ -39,8 +48,6 @@ class BaseTool:
                 requests.packages.urllib3.disable_warnings()
             except ImportError:
                 pass
-            import warnings
-            warnings.warn("SSL verification is disabled. This is a security risk and should not be used in production.")
 
     def _get_llm_client(self) -> Client:
         """
@@ -76,8 +83,8 @@ class BaseTool:
         else:
             load_duration = 'N/A'
 
-        logger.info(f"Total Duration: {total_duration} seconds")
-        logger.info(f"Load Duration: {load_duration} seconds")
+        logger.debug(f"Total Duration: {total_duration} seconds")
+        logger.debug(f"Load Duration: {load_duration} seconds")
 
     def _call_llm(self, messages: list[dict],  model: str | None = None) -> ChatResponse:
         """
