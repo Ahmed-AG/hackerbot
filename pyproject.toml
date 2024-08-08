@@ -27,6 +27,7 @@ uvicorn = "0.30.3"
 ollama = "0.3.0"
 requests = ">=2.32.3"
 splunk-sdk = "2.0.2"
+click = "^8.1.7"
 
 
 [tool.poetry.group.build]
@@ -47,7 +48,6 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-hackerbot = 'hackerbot.cli:main'
 hackerbot_cli = 'hackerbot.cli:main'
 
 [tool.pytest.ini_options]
@@ -56,3 +56,4 @@ hackerbot_cli = 'hackerbot.cli:main'
 #                       section of the configuration file raise errors.
 
 addopts = "--strict-config --cov=hackerbot"
+console_output_style = "count"

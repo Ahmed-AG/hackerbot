@@ -8,4 +8,4 @@ def env_var_config_default_factory(field_name: str, env_var: str, default: str |
     value = os.getenv(env_var, default)
     if error_on_empty and value is None:
         raise ValueError(f"{field_name} must be passed as a config argument or as an environmental variable: export {env_var}='value'")
-    return value
+    return value or ""
