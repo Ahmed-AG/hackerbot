@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from warnings import warn
 from typing import Generator, Literal
 from splunklib import client
 from splunklib import results
@@ -162,6 +163,7 @@ class SplunkTool(BaseTool):
         logger.debug("Getting Splunk service object")
 
         if self._splunk_service is None:
+            warn(f"SSL verification is disabled when connecting to {self._config.splunk_host}:{self._config.splunk_port}. This is a security risk and should not be used in production.")
             self._splunk_service = client.connect(
                 host=self._config.splunk_host,
                 port=self._config.splunk_port,
