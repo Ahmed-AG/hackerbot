@@ -27,7 +27,7 @@ jobs:
       - name: Install poetry
         shell: bash
         run: |
-          pip install "poetry=$POETRY_VERSION"
+          pip install "poetry==$POETRY_VERSION"
           poetry --version
 
       - name: Install dependencies
