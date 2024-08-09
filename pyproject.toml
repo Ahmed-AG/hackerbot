@@ -19,7 +19,7 @@ repository = "https://github.com/Ahmed-AG/hackerbot"
 "Issues" = "https://github.com/Ahmed-AG/hacketbot/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 fastapi = "0.111.0"
 fastapi-cli = "0.0.5"
 python-dotenv = "1.0.1"
