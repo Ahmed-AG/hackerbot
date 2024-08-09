@@ -1488,7 +1488,6 @@ files = [
 
 [package.dependencies]
 anyio = ">=3.4.0,<5"
-typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7)", "pyyaml"]
@@ -1936,5 +1935,5 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.9"
-content-hash = "f35f1d07df46d2c323dc977c6b20dd3f4e4049822d0b664954c3857096d633fa"
+python-versions = "^3.10"
+content-hash = "f98ed9d2d4d0afad2bb16b733631c8f07ee4258eeae3c31b17ac6c00197c1093"
