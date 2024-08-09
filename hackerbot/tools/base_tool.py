@@ -24,6 +24,9 @@ class BaseToolConfig(BaseModel):
     verify_ssl: bool = Field(
         default_factory=lambda: env_var_config_default_factory("verify_ssl", "VERIFY_SSL", error_on_empty=False).lower() != "false",
     )
+    supress_warnings: bool = Field(
+        default_factory=lambda: env_var_config_default_factory("supress_warnings", "HACKERBOT_SUPRESS_WARNINGS", error_on_empty=False).lower() == "true",
+    )
 
 
 class BaseTool:
