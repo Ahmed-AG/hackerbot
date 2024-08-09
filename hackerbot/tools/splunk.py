@@ -325,6 +325,7 @@ class SplunkTool(BaseTool):
         show me the last 25 logs from cisco:asa that are associated with user john -> index!=_* sourcetype=cisco:asa user=john | head 25 | table _time, user, _raw
         show me all bash commands that were executed -> index!=_* sourcetype=bash_history | table _time,_raw
         show me traffic going to http, https and ssh going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" AND (port=80 OR port=443 OR port=22) | table _time, src_ip, dest_ip, port, protocol
+        show me traffic  going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" | table _time, src_ip, dest_ip, port, protocol
         Instructions:
         - When asked about user's activities, do not use sourcetype in the query.
         - When asked about IP addresses, list all of them.
