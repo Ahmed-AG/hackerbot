@@ -167,3 +167,41 @@ def test_splunk_result_table_formatting_json__error_type_list_item(set_default_l
 
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="json")
+
+def test_splunk_result_table_formatting_json_empty_data(set_default_llm_url):
+
+    test_data = []
+
+    splunk_conf = SplunkToolConfig(
+        splunk_host="doesnt matter",
+        splunk_port="1234",
+        splunk_user="admin",
+        splunk_pass="admin",
+        use_static_env_map=True,
+    )
+
+    splunk = SplunkTool(splunk_conf)
+
+    table = splunk.format_splunk_results_as_table(test_data, results_mode="json")
+
+    assert table.field_names == [], "Expected table field names to be empty"
+    assert table.rows == [], "Expected table rows to be empty"
+
+def test_splunk_result_table_formatting_csv_empty_data(set_default_llm_url):
+
+    test_data = []
+
+    splunk_conf = SplunkToolConfig(
+        splunk_host="doesnt matter",
+        splunk_port="1234",
+        splunk_user="admin",
+        splunk_pass="admin",
+        use_static_env_map=True,
+    )
+
+    splunk = SplunkTool(splunk_conf)
+
+    table = splunk.format_splunk_results_as_table(test_data, results_mode="csv")
+
+    assert table.field_names == [], "Expected table field names to be empty"
+    assert table.rows == [], "Expected table rows to be empty"

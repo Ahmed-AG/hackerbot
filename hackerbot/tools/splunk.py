@@ -249,6 +249,10 @@ class SplunkTool(BaseTool):
                 if not (isinstance(row, str) or isinstance(row, int) or isinstance(row, float)):
                     raise TypeError("All elements of 'results' must be either of str, int or float type when using results_mode = csv")
 
+            # Check if the results are empty
+            if len(results) == 0:
+                return PrettyTable()
+
             with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
                 tmp.writelines(results)
                 tmp.close()
@@ -265,6 +269,9 @@ class SplunkTool(BaseTool):
                 if not (isinstance(row, dict)):
                     raise TypeError("All elements of 'results' must be of dict type when using results_mode = json")
 
+            # Check if the results are empty
+            if len(results) == 0:
+                return PrettyTable()
 
             table = PrettyTable()
             # Aggregate valus from each line into a list for each column
