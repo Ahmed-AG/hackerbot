@@ -1,4 +1,7 @@
 from pydantic import BaseModel, Field
+from prettytable import PrettyTable, from_csv
+import tempfile
+import os
 from warnings import warn
 from typing import Generator, Literal
 from splunklib import client
@@ -232,6 +235,62 @@ class SplunkTool(BaseTool):
         spl = "index!=_* |stats count by sourcetype |table sourcetype"
         env_map = json.dumps(json.loads(self.run_search(spl))[0])
         return str(env_map)
+
+    @staticmethod
+    def format_splunk_results_as_table(results: list[str | int | float] | list[dict], results_mode: Literal['json', 'csv'] = 'csv') -> PrettyTable:
+        if results_mode not in ['json', 'csv']:
+            raise ValueError(f"Invalid results_mode: '{results_mode}'. Must be 'json' or 'csv'")
+
+        if results_mode == 'csv':
+            # Checking that the results is in the shape that we want
+            if not isinstance(results, list):
+                raise TypeError("'results' must be a list when using results_mode = csv")
+            for row in results:
+                if not (isinstance(row, str) or isinstance(row, int) or isinstance(row, float)):
+                    raise TypeError("All elements of 'results' must be either of str, int or float type when using results_mode = csv")
+
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
+                tmp.writelines(results)
+                tmp.close()
+
+                with open(tmp.name, "r") as f:
+                    table = from_csv(f)
+
+                os.remove(tmp.name)
+
+        elif results_mode == 'json':
+            if not isinstance(results, list):
+                raise TypeError("'results' must be a list when using results_mode = json")
+            for row in results:
+                if not (isinstance(row, dict)):
+                    raise TypeError("All elements of 'results' must be of dict type when using results_mode = json")
+
+
+            table = PrettyTable()
+            # Aggregate valus from each line into a list for each column
+            columns: dict[list[str]] = {}
+            for line in results:
+                for k, v in line.items():
+                    if k not in columns:
+                        columns[k] = []
+                    # Try to convert the values to an int if possible. This is useful when sorting using these values
+                    try:
+                        v = float(v)
+                        if v.as_integer_ratio()[1] == 1: # This is true when the float number can be an integer. e.g. 10.0 , 4124.0 etc.
+                            v = int(v)
+                    except:
+                        pass
+                    columns[k].append(v)
+
+            for k, v in columns.items():
+                table.add_column(k, v)
+
+        # Set the sort key to 'count' if there is a count column
+        if 'count' in table.field_names:
+            table.sortby = 'count'
+
+        return table
+
 
     def _get_spl_generation_instructions(self) -> str:
         """
