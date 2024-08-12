@@ -228,7 +228,7 @@ class SplunkTool(BaseTool):
     def _map_env(self) -> str:
         logger.debug("Mapping Splunk envirnoment...")
         spl = "index!=_* |stats count by sourcetype |table sourcetype"
-        env_map = json.dumps(json.loads(self.run_search(spl))[0])
+        env_map = json.dumps(self.run_search(spl, output_mode="json"))
         return str(env_map)
 
     @staticmethod
