@@ -340,3 +340,6 @@ pyrightconfig.json
 
 ### vscode ###
 .vscod*
+
+### Hackerbot ###
+*.hackerbot.toml*

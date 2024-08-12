@@ -3,41 +3,23 @@ from pytest import MonkeyPatch
 
 from hackerbot.tools.base_tool import BaseTool, BaseToolConfig
 
-def test_prepare_analyze_results_raises_value_error_when_question_is_missing(set_default_llm_url):
+def test_prepare_analyze_results_raises_value_error_when_question_is_missing():
     tool = BaseTool(BaseToolConfig())
     with pytest.raises(ValueError) as e:
         tool._prepare_analyze_results(search_results="search_results")
     assert str(e.value) == "Question is not set"
 
-def test_prepare_analyze_results_raises_value_error_when_search_results_is_missing(set_default_llm_url):
+def test_prepare_analyze_results_raises_value_error_when_search_results_is_missing():
     tool = BaseTool(BaseToolConfig())
     with pytest.raises(ValueError) as e:
         tool._prepare_analyze_results(question="question")
     assert str(e.value) == "Search results is not set"
 
-def test_config_verify_ssl_is_true_by_default(monkeypatch: MonkeyPatch, set_default_llm_url):
-    monkeypatch.delenv("VERIFY_SSL", raising=False)
-
+def test_config_verify_ssl_is_true_by_default():
     config = BaseToolConfig()
     assert config.verify_ssl is True
 
-def test_config_verify_ssl_is_false_when_env_var_is_false(monkeypatch: MonkeyPatch, set_default_llm_url):
-    monkeypatch.setenv("VERIFY_SSL", "false")
-
-    config = BaseToolConfig()
-    assert config.verify_ssl is False, "BaseToolConfig.verify_ssl should be False when VERIFY_SSL env var is set to 'false'"
-
-    monkeypatch.setenv("VERIFY_SSL", "FALSE")
-
-    config = BaseToolConfig()
-    assert config.verify_ssl is False, "BaseToolConfig.verify_ssl should be False when VERIFY_SSL env var is set to 'false'"
-
-    monkeypatch.setenv("VERIFY_SSL", "FaLsE")
-
-    config = BaseToolConfig()
-    assert config.verify_ssl is False, "BaseToolConfig.verify_ssl should be False when VERIFY_SSL env var is set to 'false'"
-
-def test_analyze_results_calls_prepare_analyze_results(monkeypatch: MonkeyPatch, set_default_llm_url):
+def test_analyze_results_calls_prepare_analyze_results(monkeypatch: MonkeyPatch):
 
     def mock_prepare_analyze_results(*args, **lwargs):
         return [
@@ -61,7 +43,7 @@ def test_analyze_results_calls_prepare_analyze_results(monkeypatch: MonkeyPatch,
     tool = BaseTool(BaseToolConfig())
     assert tool.analyze_results("question", "search_results") == "This is the response from the LLM model"
 
-def test_stream_analyze_results_calls_prepare_analyze_results(monkeypatch: MonkeyPatch, set_default_llm_url):
+def test_stream_analyze_results_calls_prepare_analyze_results(monkeypatch: MonkeyPatch):
 
 
     chunks = [

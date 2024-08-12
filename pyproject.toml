@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hackerbot"
 version = "2.0.0-alpha2"
-description = "An AI-CyberSecurity Bot"
+description = "An AI-CyberSecurity Bot that assists security analysts in incident investigations"
 authors = [
     "Ahmed Abugharbia <ahmed@cyberdojo.cloud>",
     "Mohanad Abugharbia <mgharbieh.01@gmail.com>",
@@ -29,6 +29,8 @@ requests = ">=2.32.3"
 splunk-sdk = "2.0.2"
 click = "^8.1.7"
 prettytable = "^3.10.2"
+pydantic-settings = "^2.4.0"
+tomlkit = "^0.13.0"
 
 
 [tool.poetry.group.build]

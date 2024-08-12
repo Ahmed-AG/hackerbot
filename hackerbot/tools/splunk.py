@@ -14,9 +14,6 @@ from hackerbot.tools.base_tool import (
     BaseTool,
     BaseToolConfig,
 )
-from hackerbot.utilities import (
-    env_var_config_default_factory,
-)
 from hackerbot.exceptions import (
     GenerationError,
     QueryError,
@@ -35,20 +32,24 @@ class SplunkResponse(BaseModel):
 
 class SplunkToolConfig(BaseToolConfig):
     splunk_host: str = Field(
-        default_factory=lambda: env_var_config_default_factory("splunk_host", "SPLUNK_HOST", error_on_empty=True),
+        default = "127.0.0.1",
     )
-    splunk_port: str = Field(
-        default_factory=lambda: env_var_config_default_factory("splunk_port", "SPLUNK_PORT", error_on_empty=True),
+    splunk_port: str | int = Field(
+        default = 8089,
     )
     splunk_user: str = Field(
-        default_factory=lambda: env_var_config_default_factory("splunk_user", "SPLUNK_USER", error_on_empty=True),
+        default = "admin",
     )
     splunk_pass: str = Field(
-        default_factory=lambda: env_var_config_default_factory("splunk_pass", "SPLUNK_PASS", error_on_empty=True),
+        default = "password",
+    )
+    env_map: str = Field(
+        default = "",
     )
     use_static_env_map: bool = Field(
-        default_factory=lambda: env_var_config_default_factory("use_static_env_map", "USE_SPLUNK_STATIC_ENV_MAP", error_on_empty=False).lower() == "true",
+        default = False,
     )
+    force_env_map_reload: bool = False
 
 
 class SplunkTool(BaseTool):
@@ -333,4 +334,4 @@ class SplunkTool(BaseTool):
         - Connect to mean dest_ip=
         - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
         The following is useful information about the environment.
-        ''' + str(self.env_map)
+        ''' + str(self._config.env_map)

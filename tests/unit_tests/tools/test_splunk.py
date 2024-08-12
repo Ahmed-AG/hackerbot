@@ -3,7 +3,7 @@ import pytest
 from hackerbot.tools import SplunkTool, SplunkToolConfig
 
 
-def test_splunk_result_table_formatting_csv(set_default_llm_url):
+def test_splunk_result_table_formatting_csv():
     test_data = [
         '"src_ip",count\n',
         '"10.10.10.10",1\n',
@@ -19,10 +19,6 @@ def test_splunk_result_table_formatting_csv(set_default_llm_url):
     ]
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -34,7 +30,7 @@ def test_splunk_result_table_formatting_csv(set_default_llm_url):
 
     assert len(table.rows) == len(test_data) - 1, f"Expected table rows to be exactly '{len(test_data) - 1}'"
 
-def test_splunk_result_table_formatting_json(set_default_llm_url):
+def test_splunk_result_table_formatting_json():
     test_data = [
         { "src_ip" : "10.10.10.10", "count" : "1" },
         { "src_ip" : "10.10.10.10", "count" : "2" },
@@ -49,10 +45,6 @@ def test_splunk_result_table_formatting_json(set_default_llm_url):
     ]
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -64,16 +56,12 @@ def test_splunk_result_table_formatting_json(set_default_llm_url):
 
     assert len(table.rows) == len(test_data), f"Expected table rows to be exactly '{len(test_data)}'"
 
-def test_splunk_result_table_formatting__error_invalid_results_mode(set_default_llm_url):
+def test_splunk_result_table_formatting__error_invalid_results_mode():
     test_data = [
         { "src_ip" : "10.10.10.10", "count" : "1" },
     ]
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -82,7 +70,7 @@ def test_splunk_result_table_formatting__error_invalid_results_mode(set_default_
     with pytest.raises(ValueError):
         splunk.format_splunk_results_as_table(test_data, results_mode="non-existent-mode")
 
-def test_splunk_result_table_formatting_csv__error_not_list(set_default_llm_url):
+def test_splunk_result_table_formatting_csv__error_not_list():
 
     test_data = {
         "test" : [
@@ -92,10 +80,6 @@ def test_splunk_result_table_formatting_csv__error_not_list(set_default_llm_url)
     }
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -104,7 +88,7 @@ def test_splunk_result_table_formatting_csv__error_not_list(set_default_llm_url)
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="csv")
 
-def test_splunk_result_table_formatting_csv__error_type_list_item(set_default_llm_url):
+def test_splunk_result_table_formatting_csv__error_type_list_item():
 
     test_data = [
         '"src_ip",count\n',
@@ -113,10 +97,6 @@ def test_splunk_result_table_formatting_csv__error_type_list_item(set_default_ll
     ]
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -125,7 +105,7 @@ def test_splunk_result_table_formatting_csv__error_type_list_item(set_default_ll
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="csv")
 
-def test_splunk_result_table_formatting_json__error_not_list(set_default_llm_url):
+def test_splunk_result_table_formatting_json__error_not_list():
 
     test_data = {
         "test" : [
@@ -135,10 +115,6 @@ def test_splunk_result_table_formatting_json__error_not_list(set_default_llm_url
     }
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -147,7 +123,7 @@ def test_splunk_result_table_formatting_json__error_not_list(set_default_llm_url
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="json")
 
-def test_splunk_result_table_formatting_json__error_type_list_item(set_default_llm_url):
+def test_splunk_result_table_formatting_json__error_type_list_item():
 
     test_data = [
         '"src_ip",count\n',
@@ -156,10 +132,6 @@ def test_splunk_result_table_formatting_json__error_type_list_item(set_default_l
     ]
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -168,15 +140,11 @@ def test_splunk_result_table_formatting_json__error_type_list_item(set_default_l
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="json")
 
-def test_splunk_result_table_formatting_json_empty_data(set_default_llm_url):
+def test_splunk_result_table_formatting_json_empty_data():
 
     test_data = []
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 
@@ -187,15 +155,11 @@ def test_splunk_result_table_formatting_json_empty_data(set_default_llm_url):
     assert table.field_names == [], "Expected table field names to be empty"
     assert table.rows == [], "Expected table rows to be empty"
 
-def test_splunk_result_table_formatting_csv_empty_data(set_default_llm_url):
+def test_splunk_result_table_formatting_csv_empty_data():
 
     test_data = []
 
     splunk_conf = SplunkToolConfig(
-        splunk_host="doesnt matter",
-        splunk_port="1234",
-        splunk_user="admin",
-        splunk_pass="admin",
         use_static_env_map=True,
     )
 

@@ -3,7 +3,6 @@ from typing import cast, Generator, Literal
 from pydantic import BaseModel, Field
 import logging
 
-from hackerbot.utilities import env_var_config_default_factory
 
 logger = logging.getLogger("hackerbot")
 
@@ -19,13 +18,13 @@ class BaseToolConfig(BaseModel):
         description="The LLM model to use. Can be 'llama3' or 'llama3.1'. Default is 'llama3.1'",
     )
     llm_url: str = Field(
-        default_factory=lambda: env_var_config_default_factory("llm_url", "LLM_URL", error_on_empty=True),
+        default = "http://localhost:11434",
     )
     verify_ssl: bool = Field(
-        default_factory=lambda: env_var_config_default_factory("verify_ssl", "VERIFY_SSL", error_on_empty=False).lower() != "false",
+        default = True,
     )
     supress_warnings: bool = Field(
-        default_factory=lambda: env_var_config_default_factory("supress_warnings", "HACKERBOT_SUPRESS_WARNINGS", error_on_empty=False).lower() == "true",
+        default = False,
     )
 
 
