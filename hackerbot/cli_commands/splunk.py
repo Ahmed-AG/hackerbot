@@ -49,9 +49,7 @@ from hackerbot.tools.splunk import SplunkTool, SplunkToolConfig
     is_flag=True,
     help="Disable output streaming. Default Enabled"
 )
-@click.pass_context
 def splunk_command(
-    ctx: click.Context,
     input: str,
     spl_query_results: str,
     generate: bool,
@@ -66,19 +64,16 @@ def splunk_command(
     """
     # ensure that ctx.obj exists and is a dict (in case `cli()` is called
     # by means other than the `if` block below)
-    ctx.ensure_object(dict)
-
-    print(f"Running Splunk tool with LLM: {llm} - {no_stream}")
 
     if generate:
         splunk_generate(
-            llm=ctx.obj["llm"],
+            llm=llm,
             input=input,
-            no_stream=ctx.obj["no_stream"],
+            no_stream=no_stream,
         )
     elif query:
         splunk_query(
-            llm=ctx.obj["llm"],
+            llm=llm,
             input=input,
         )
     elif analyze:
@@ -86,16 +81,16 @@ def splunk_command(
             print("SQL query results are required when only performing an analysis using -a/--analyze. Please provide the SQL query results using the --sql-query-results flag. Refer to the help (-h/--help) for more information.")
             exit(1)
         splunk_analyze(
-            llm=ctx.obj["llm"],
+            llm=llm,
             input=input,
             spl_query_results=spl_query_results,
-            no_stream=ctx.obj["no_stream"],
+            no_stream=no_stream,
         )
     else:
         splunk_run(
-            llm=ctx.obj["llm"],
+            llm=llm,
             input=input,
-            no_stream=ctx.obj["no_stream"],
+            no_stream=no_stream,
         )
 
 
@@ -119,7 +114,7 @@ def splunk_generate(
         generated_spl = response
     else:
         response = splunk.stream_generate_spl(question=input)
-        print(f"\n\nSPL Query: ", end="", flush=True)
+        print(f"\n\nGenerating SPL Query...\n")
         for chunk in response:
             print(chunk, end="", flush=True)
             generated_spl += chunk
@@ -178,26 +173,7 @@ def splunk_run(
     input: str,
     no_stream: bool = False,
 ):
-    config = SplunkToolConfig(
-        llm_model=llm,
-    )
-    splunk = SplunkTool(
-        config=config,
-    )
 
-
-    # if no_stream:
-    #     request = SplunkRequest(
-    #         question=input,
-    #         return_spl=print_spl,
-    #     )
-    #     response = splunk.run(request)
-    #     if print_spl:
-    #         print(f"\n\nSPL Query: '{response.spl}'")
-
-    #     print("\n\nAnswer:\n\n")
-    #     print(response.answer)
-    # else:
     spl = splunk_generate(llm, input, no_stream)
     query_results = splunk_query(llm, spl)
     str_query_results = "".join(query_results)
