@@ -3,7 +3,7 @@ import pytest
 from hackerbot.tools import SplunkTool, SplunkToolConfig
 
 
-def test_splunk_result_table_formatting_csv():
+def test_splunk_result_table_formatting_csv(default_splunk_env_map: str):
     test_data = [
         '"src_ip",count\n',
         '"10.10.10.10",1\n',
@@ -19,7 +19,7 @@ def test_splunk_result_table_formatting_csv():
     ]
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -30,7 +30,7 @@ def test_splunk_result_table_formatting_csv():
 
     assert len(table.rows) == len(test_data) - 1, f"Expected table rows to be exactly '{len(test_data) - 1}'"
 
-def test_splunk_result_table_formatting_json():
+def test_splunk_result_table_formatting_json(default_splunk_env_map: str):
     test_data = [
         { "src_ip" : "10.10.10.10", "count" : "1" },
         { "src_ip" : "10.10.10.10", "count" : "2" },
@@ -45,7 +45,7 @@ def test_splunk_result_table_formatting_json():
     ]
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -56,13 +56,13 @@ def test_splunk_result_table_formatting_json():
 
     assert len(table.rows) == len(test_data), f"Expected table rows to be exactly '{len(test_data)}'"
 
-def test_splunk_result_table_formatting__error_invalid_results_mode():
+def test_splunk_result_table_formatting__error_invalid_results_mode(default_splunk_env_map: str):
     test_data = [
         { "src_ip" : "10.10.10.10", "count" : "1" },
     ]
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -70,7 +70,7 @@ def test_splunk_result_table_formatting__error_invalid_results_mode():
     with pytest.raises(ValueError):
         splunk.format_splunk_results_as_table(test_data, results_mode="non-existent-mode")
 
-def test_splunk_result_table_formatting_csv__error_not_list():
+def test_splunk_result_table_formatting_csv__error_not_list(default_splunk_env_map: str):
 
     test_data = {
         "test" : [
@@ -80,7 +80,7 @@ def test_splunk_result_table_formatting_csv__error_not_list():
     }
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -88,7 +88,7 @@ def test_splunk_result_table_formatting_csv__error_not_list():
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="csv")
 
-def test_splunk_result_table_formatting_csv__error_type_list_item():
+def test_splunk_result_table_formatting_csv__error_type_list_item(default_splunk_env_map: str):
 
     test_data = [
         '"src_ip",count\n',
@@ -97,7 +97,7 @@ def test_splunk_result_table_formatting_csv__error_type_list_item():
     ]
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -105,7 +105,7 @@ def test_splunk_result_table_formatting_csv__error_type_list_item():
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="csv")
 
-def test_splunk_result_table_formatting_json__error_not_list():
+def test_splunk_result_table_formatting_json__error_not_list(default_splunk_env_map: str):
 
     test_data = {
         "test" : [
@@ -115,7 +115,7 @@ def test_splunk_result_table_formatting_json__error_not_list():
     }
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -123,7 +123,7 @@ def test_splunk_result_table_formatting_json__error_not_list():
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="json")
 
-def test_splunk_result_table_formatting_json__error_type_list_item():
+def test_splunk_result_table_formatting_json__error_type_list_item(default_splunk_env_map: str):
 
     test_data = [
         '"src_ip",count\n',
@@ -132,7 +132,7 @@ def test_splunk_result_table_formatting_json__error_type_list_item():
     ]
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -140,12 +140,12 @@ def test_splunk_result_table_formatting_json__error_type_list_item():
     with pytest.raises(TypeError):
         splunk.format_splunk_results_as_table(test_data, results_mode="json")
 
-def test_splunk_result_table_formatting_json_empty_data():
+def test_splunk_result_table_formatting_json_empty_data(default_splunk_env_map: str):
 
     test_data = []
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
@@ -155,12 +155,12 @@ def test_splunk_result_table_formatting_json_empty_data():
     assert table.field_names == [], "Expected table field names to be empty"
     assert table.rows == [], "Expected table rows to be empty"
 
-def test_splunk_result_table_formatting_csv_empty_data():
+def test_splunk_result_table_formatting_csv_empty_data(default_splunk_env_map: str):
 
     test_data = []
 
     splunk_conf = SplunkToolConfig(
-        use_static_env_map=True,
+        env_map=default_splunk_env_map,
     )
 
     splunk = SplunkTool(splunk_conf)
