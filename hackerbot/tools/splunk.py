@@ -330,5 +330,6 @@ class SplunkTool(BaseTool):
         - When asked about "count", or get "all" then use the stats commands instead of a table
         - Connect to mean dest_ip=
         - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
+        - destination port means dest_port
         The following is useful information about the environment.
         ''' + str(self._config.env_map)
