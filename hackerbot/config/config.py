@@ -9,13 +9,13 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-
+from hackerbot.utilities.singleton import singleton
 from hackerbot.tools.splunk import SplunkToolConfig
 
 
 DEFAULT_CONFIG_PATH = f"{Path.home()}/.hackerbot/config.toml"
 
-
+@singleton
 class HackerbotConfig(BaseSettings):
     _instance = None
     _is_initialized = False
@@ -23,6 +23,7 @@ class HackerbotConfig(BaseSettings):
     model_config: SettingsConfigDict = SettingsConfigDict(
         case_sensitive=False,
         env_prefix="hackerbot_",
+        env_nested_delimiter="__",
         # The order of the sources is important. This is sorted from lowest to highest priority
         toml_file=[DEFAULT_CONFIG_PATH, ".hackerbot.toml"],
     )
