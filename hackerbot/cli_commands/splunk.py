@@ -1,6 +1,8 @@
 import click
 
 from hackerbot.tools.splunk import SplunkTool, SplunkToolConfig
+from hackerbot.config import hackerbot_config
+
 
 @click.command(
     "splunk",
@@ -99,11 +101,8 @@ def splunk_generate(
     input: str,
     no_stream: bool = False,
 ) -> str:
-    config = SplunkToolConfig(
-        llm_model=llm,
-    )
     splunk = SplunkTool(
-        config=config,
+        config=hackerbot_config.splunk,
     )
 
     generated_spl = ""
@@ -126,11 +125,8 @@ def splunk_query(
     input: str,
 ) -> list[str]:
 
-    config = SplunkToolConfig(
-        llm_model=llm,
-    )
     splunk = SplunkTool(
-        config=config,
+        config=hackerbot_config.splunk,
     )
 
     response = splunk.run_search(spl=input, output_mode='csv')
@@ -145,11 +141,8 @@ def splunk_analyze(
     spl_query_results: str,
     no_stream: bool = False,
 ) -> str:
-    config = SplunkToolConfig(
-        llm_model=llm,
-    )
     splunk = SplunkTool(
-        config=config,
+        config=hackerbot_config.splunk,
     )
 
     analysis = ""

@@ -4,7 +4,7 @@ from .logging import (
     set_level,
 )
 
-from hackerbot.cli_commands import splunk_command
+from hackerbot.cli_commands import splunk_command, configure_command
 
 def set_debug(ctx: click.Context, param: click.Parameter, value: bool) -> None:
     if not value or ctx.resilient_parsing:
@@ -62,4 +62,5 @@ def main(
 
 
 main.add_command(splunk_command)
+main.add_command(configure_command)
 
