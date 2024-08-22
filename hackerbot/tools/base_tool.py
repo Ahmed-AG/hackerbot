@@ -95,6 +95,7 @@ class BaseTool:
         client = self._get_llm_client()
         if model is None:
             model = self._config.llm_model
+        # TODO: use generate instead of chat
         response = client.chat(model=model, messages=messages)
         typed_response = cast(ChatResponse, response)
 
@@ -132,8 +133,12 @@ class BaseTool:
 
         messages = [
             {
+                'role': 'system',
+                'content': instructions + "\nSearch Results:\n" + search_results
+            },
+            {
                 'role': 'user',
-                'content': instructions + "\nUser Question: " + question + "\nSearch Results:\n" + search_results
+                'content': question
             },
         ]
         return messages
