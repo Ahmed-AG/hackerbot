@@ -17,6 +17,7 @@ from hackerbot.tools.base_tool import (
 from hackerbot.exceptions import (
     GenerationError,
     QueryError,
+    SplunkConnectionError,
 )
 
 logger: logging.Logger = logging.getLogger("hackerbot")
@@ -162,13 +163,16 @@ class SplunkTool(BaseTool):
         if self._splunk_service is None:
             if not self._config.verify_ssl and not self._config.supress_warnings:
                 warn(f"SSL verification is disabled when connecting to {self._config.splunk_host}:{self._config.splunk_port}. This is a security risk and should not be used in production.")
-            self._splunk_service = client.connect(
-                host=self._config.splunk_host,
-                port=self._config.splunk_port,
-                username=self._config.splunk_user,
-                password=self._config.splunk_pass,
-                verify=self._config.verify_ssl,
-            )
+            try:
+                self._splunk_service = client.connect(
+                    host=self._config.splunk_host,
+                    port=self._config.splunk_port,
+                    username=self._config.splunk_user,
+                    password=self._config.splunk_pass,
+                    verify=self._config.verify_ssl,
+                )
+            except Exception as e:
+                raise SplunkConnectionError(f"Error connecting to Splunk: {e}")
 
         return self._splunk_service
 

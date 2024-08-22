@@ -4,3 +4,6 @@ from .generation import (
 from .query import (
     QueryError,
 )
+from .connection import (
+    SplunkConnectionError,
+)
