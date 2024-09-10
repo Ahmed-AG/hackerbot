@@ -129,12 +129,12 @@ class BaseTool:
             search_results = self._search_results
 
 
-        instructions = self._get_analysis_instructions()
+        instructions = self._get_analysis_instructions(search_results)
 
         messages = [
             {
                 'role': 'system',
-                'content': instructions + "\nSearch Results:\n" + search_results
+                'content': instructions
             },
             {
                 'role': 'user',
@@ -162,19 +162,32 @@ class BaseTool:
         for chunk in response:
             yield chunk['message']['content']
 
-    def _get_analysis_instructions(self) -> str:
+    def _get_analysis_instructions(self, search_results: str) -> str:
         """
             Get the analysis instructions
             Used to instruct the LLM model on how to analyze the data
             Typically used by the analyze_results method
         """
 
-        return f'''
-        Your Job is to read the User Question and the Search Results, then answer the User Question based on the search results.
-        Instructions:
-        - Keep your answers short and straight to the point.
-        - If you do not understand the question, summerize the search results.
-        - If search results is emply, just say "No search data was returned".
-        '''
+        return f"""
+                You are an expert cyber security analyst.
+                Your Job is to read and understand the Search results and answer the User Question based on your expertise and understanding of the search results.
 
 
+                Field of Expertise:
+                    - Cyber Security
+                    - Splunk Analysis
+                    - Incident Investigation
+                    - Threat Intelligence
+
+                Give your final best answer, following these rules:
+                    - Keep your answers short and straight to the point.
+                    - If you do not understand the question, summerize the search results.
+                    - If search results is emply, just say "No search data was returned".
+                    - Do not use XML Tags in your answer.
+
+
+                <search results>
+                {search_results}
+                </search results>
+            """
