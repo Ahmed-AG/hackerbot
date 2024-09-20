@@ -306,12 +306,24 @@ class SplunkTool(BaseTool):
         """
 
         return '''
+        [Your job]
         You are part of a program that searches splunk
         Your Job is to create Splunk queries (SPL) based on the user input.
         Your response will be used as input to Splunk. therefore, respond only with a splunk SPL query. Nothing else.
-        Do not output ANYTHING except the query itself. no explaination ot anything else. just the query iself
-
-        use the following as examples:
+        
+        [Instructions]
+        - Use the envinroment map to as a guide to what sourcetypes are available
+        - Do not output ANYTHING except the query itself. no explaination ot anything else. just the query iself
+        - When asked about how a specific log type looks like, get a raw sample by using |head 10
+        - When asked about sourcetypes or source references use the |metadata command
+        - When asked about user's activities, do not use sourcetype in the query.
+        - When asked about IP addresses, list all of them.
+        - When asked about "count", or get "all" then use the stats commands instead of a table
+        - Connect to mean dest_ip=
+        - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
+        - destination port means dest_port
+        
+        [use the following as examples]
         Show me events that happened on my AWS env -> index!=_* sourcetype=aws:cloudtrail | table _time user eventName eventSource _raw
         What users accessed my AWS cloud? -> index!=_* sourcetype=aws:cloudtrail | stats count by user
         Show me all users who accessed my system -> index!=_* |stats count by user, sourcetype
@@ -324,15 +336,9 @@ class SplunkTool(BaseTool):
         show me all bash commands that were executed -> index!=_* sourcetype=bash_history | table _time,_raw
         show me traffic going to http, https and ssh going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" AND (port=80 OR port=443 OR port=22) | table _time, src_ip, dest_ip, port, protocol
         show me traffic  going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" | table _time, src_ip, dest_ip, port, protocol
-        Instructions:
-        - domains in the context of DNS could mean the "query" or the "hostname" fields
-        - When asked about how a specific log type looks like, get a raw sample by using |head 10
-        - When asked about sourcetypes or source references use the |metadata command
-        - When asked about user's activities, do not use sourcetype in the query.
-        - When asked about IP addresses, list all of them.
-        - When asked about "count", or get "all" then use the stats commands instead of a table
-        - Connect to mean dest_ip=
-        - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
-        - destination port means dest_port
-        The following is useful information about the environment.
+        what DNS queries do we have? -> index!=_* sourcetype=stream:dns | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr 
+        list the DNS queries where ABCD is mentoned -> index!=_* sourcetype=stream:dns "ABCD" | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr 
+
+
+        [The following is the environment map. it includes sourcetypes available]
         ''' + str(self._config.env_map)

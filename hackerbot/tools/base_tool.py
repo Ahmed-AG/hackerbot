@@ -96,7 +96,11 @@ class BaseTool:
         if model is None:
             model = self._config.llm_model
         # TODO: use generate instead of chat
-        response = client.chat(model=model, messages=messages)
+        response = client.chat(
+            model=model, 
+            messages=messages,
+            options={'temperature' : 0.0}
+            )
         typed_response = cast(ChatResponse, response)
 
         logger.debug(f"LLM Response: {typed_response}")
