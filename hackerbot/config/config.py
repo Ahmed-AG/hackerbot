@@ -1,5 +1,6 @@
 from typing import Type, Tuple
 import tomlkit
+import os
 from pathlib import Path
 from pydantic import Field
 from pydantic_settings import (
@@ -45,6 +46,10 @@ class HackerbotConfig(BaseSettings):
         return (init_settings, env_settings, dotenv_settings, TomlConfigSettingsSource(settings_cls),)
 
     def save_config(self, path: str) -> None:
+        if not path.endswith(".toml"):
+            path = f"{path}.toml"
+        if os.path.dirname(path) and not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
         with open(path, "w") as f:
             f.write(tomlkit.dumps(self.model_dump()))
 

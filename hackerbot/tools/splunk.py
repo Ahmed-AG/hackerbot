@@ -162,7 +162,7 @@ class SplunkTool(BaseTool):
 
         if self._splunk_service is None:
             if not self._config.verify_ssl and not self._config.supress_warnings:
-                warn(f"SSL verification is disabled when connecting to {self._config.splunk_host}:{self._config.splunk_port}. This is a security risk and should not be used in production.")
+                warn(f"SSL verification is disabled when connecting to {self._config.splunk_host}:{self._config.splunk_port}.")
             try:
                 self._splunk_service = client.connect(
                     host=self._config.splunk_host,
@@ -232,8 +232,8 @@ class SplunkTool(BaseTool):
     def _map_env(self) -> str:
         logger.debug("Mapping Splunk envirnoment...")
         spl = "index!=_* |stats count by sourcetype |table sourcetype"
-        env_map = json.dumps(self.run_search(spl, output_mode="json"))
-        return str(env_map)
+        env_map = self.run_search(spl, output_mode="csv")
+        return "".join(env_map)
 
     @staticmethod
     def format_splunk_results_as_table(results: list[str | int | float] | list[dict], results_mode: Literal['json', 'csv'] = 'csv') -> PrettyTable:

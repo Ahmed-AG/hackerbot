@@ -101,7 +101,9 @@ def configure_splunk_options(
         force_env_map_reload=False,
         env_map="not important"
     )
-
+    # TODO:
+    # Save configuration even if env map fails to load.
+    # Load it on the next configure run.
     click.echo("Loading the Splunk Environment Map from the Splunk server. Please wait...\n\n")
     splunk_env_map = SplunkTool(conf)._map_env()
     click.echo("Successfully loaded the Splunk Environment Map from the Splunk server")
