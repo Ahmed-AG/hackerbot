@@ -122,12 +122,10 @@ class SplunkTool(BaseTool):
                 raise ValueError("Question is not set")
             question = self._question
 
-        instructions = self._get_spl_generation_instructions()
-
         messages =[
             {
                 'role': 'user',
-                'content': instructions + "\nuser input:" + question
+                'content': [{"text": question}]
             },
         ]
         return messages
@@ -137,9 +135,11 @@ class SplunkTool(BaseTool):
 
         messages = self._prepare_generate_spl(question=question)
 
-        response = self._call_llm(messages=messages)
+        instructions = self._get_spl_generation_instructions()
 
-        spl = response['message']['content']
+        response = self._call_llm(messages=messages, system_prompt=instructions)
+
+        spl = response['output']["message"]["content"][0]["text"]
 
         logger.debug(f"Generated Splunk query: '{spl}'")
 
@@ -150,9 +150,11 @@ class SplunkTool(BaseTool):
 
         messages = self._prepare_generate_spl(question=question)
 
-        response = self._stream_call_llm(messages=messages)
+        instructions = self._get_spl_generation_instructions()
+
+        response = self._stream_call_llm(messages=messages, system_prompt=instructions)
         for chunk in response:
-            yield chunk['message']['content']
+            yield chunk['contentBlockDelta']["delta"]["text"]
 
     def _get_splunk_service(self) -> client.Service:
         """
@@ -310,7 +312,7 @@ class SplunkTool(BaseTool):
         You are part of a program that searches splunk
         Your Job is to create Splunk queries (SPL) based on the user input.
         Your response will be used as input to Splunk. therefore, respond only with a splunk SPL query. Nothing else.
-        
+
         [Instructions]
         - Use the envinroment map to as a guide to what sourcetypes are available
         - Do not output ANYTHING except the query itself. no explaination ot anything else. just the query iself
@@ -322,7 +324,7 @@ class SplunkTool(BaseTool):
         - Connect to mean dest_ip=
         - To show network traffic use |stats count by src_ip, src_port,dest_ip,dest_port
         - destination port means dest_port
-        
+
         [use the following as examples]
         Show me events that happened on my AWS env -> index!=_* sourcetype=aws:cloudtrail | table _time user eventName eventSource _raw
         What users accessed my AWS cloud? -> index!=_* sourcetype=aws:cloudtrail | stats count by user
@@ -336,8 +338,8 @@ class SplunkTool(BaseTool):
         show me all bash commands that were executed -> index!=_* sourcetype=bash_history | table _time,_raw
         show me traffic going to http, https and ssh going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" AND (port=80 OR port=443 OR port=22) | table _time, src_ip, dest_ip, port, protocol
         show me traffic  going to 8.8.8.8 -> index!=_* dest_ip="8.8.8.8" | table _time, src_ip, dest_ip, port, protocol
-        what DNS queries do we have? -> index!=_* sourcetype=stream:dns | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr 
-        list the DNS queries where ABCD is mentoned -> index!=_* sourcetype=stream:dns "ABCD" | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr 
+        what DNS queries do we have? -> index!=_* sourcetype=stream:dns | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr
+        list the DNS queries where ABCD is mentoned -> index!=_* sourcetype=stream:dns "ABCD" | table _time, src_ip, dest_ip, query_type message_type query name host_type hostname host_addr
 
 
         [The following is the environment map. it includes sourcetypes available]

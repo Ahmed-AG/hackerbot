@@ -1,21 +1,48 @@
-from ollama import Client, ChatResponse
 from typing import cast, Generator, Literal
 from pydantic import BaseModel, Field
 import logging
+import boto3
+from botocore.exceptions import ClientError
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from mypy_boto3_bedrock_runtime import (
+        BedrockRuntimeClient,
+    )
+    from mypy_boto3_bedrock_runtime.type_defs import (
+        ConverseResponseTypeDef,
+        ConverseStreamOutputTypeDef,
+    )
+else:
+    BedrockRuntimeClient = object
+    ConverseResponseTypeDef = object
+    ConverseStreamOutputTypeDef = object
 
 
 logger = logging.getLogger("hackerbot")
 
 
+bedrock_models = {
+    "llama3.1": "us.meta.llama3-1-8b-instruct-v1:0",
+    "llama3.1:70b": "us.meta.llama3-1-70b-instruct-v1:0",
+    "llama3.1:405b": "us.meta.llama3-1-70b-instruct-v1:0",
+}
+
 class BaseToolConfig(BaseModel):
     llm_model: Literal[
-        'llama3',
         'llama3.1',
         'llama3.1:70b',
         'llama3.1:405b',
     ] = Field(
         default="llama3.1",
-        description="The LLM model to use. Can be 'llama3' or 'llama3.1'. Default is 'llama3.1'",
+        description="The LLM model to use. Default is 'llama3.1'",
+    )
+    bedrock_region: Literal[
+        "us-east-1",
+        "us-east-2",
+    ] = Field(
+        default="us-east-2",
+        description="The AWS region to use for calling Amazon Bedrock. Default is 'us-east-2'",
     )
     llm_url: str = Field(
         default = "http://localhost:11434",
@@ -31,7 +58,7 @@ class BaseToolConfig(BaseModel):
 class BaseTool:
     _supported_models: list[str] = ["llama3", "llama3.1", "llama3.1:70b", "llama3.1:405b"]
 
-    _llm_client: Client | None = None
+    _llm_client: BedrockRuntimeClient | None = None
     _config: BaseToolConfig
 
     _question: str | None = None
@@ -51,73 +78,61 @@ class BaseTool:
             except ImportError:
                 pass
 
-    def _get_llm_client(self) -> Client:
+    def _get_llm_client(self) -> BedrockRuntimeClient:
         """
             Get the LLM client
         """
-        assert self._config.llm_url is not None, "LLM URL is not set"
 
         if self._llm_client is None:
-            self._llm_client = Client(host=self._config.llm_url)
+            self._llm_client = boto3.client("bedrock-runtime", region_name=self._config.bedrock_region)
         return self._llm_client
 
-    def _log_model_metrics(self, response: ChatResponse) -> None:
-        logger.debug("Logging model metrics")
-
-        if self._config.llm_model == "llama3":
-            self._log_llama3_metrics(response)
-        elif self._config.llm_model == "llama3.1":
-            self._log_llama3_metrics(response)
-        else:
-            logger.warning(f"No metrics logging for model {self._config.llm_model} defined")
-
-    @staticmethod
-    def _log_llama3_metrics(response: ChatResponse) -> None:
-        total_duration = response.get('total_duration')
-        if total_duration is not None:
-            total_duration = response.get('total_duration') / 1_000_000_000
-        else:
-            total_duration = 'N/A'
-
-        load_duration = response.get('load_duration')
-        if load_duration is not None:
-            load_duration = response.get('load_duration') / 1_000_000_000
-        else:
-            load_duration = 'N/A'
-
-        logger.debug(f"Total Duration: {total_duration} seconds")
-        logger.debug(f"Load Duration: {load_duration} seconds")
-
-    def _call_llm(self, messages: list[dict],  model: str | None = None) -> ChatResponse:
+    def _call_llm(self, messages: list[dict], system_prompt: str | None = None,  model: str | None = None) -> ConverseResponseTypeDef:
         """
             Call the LLM model
         """
         client = self._get_llm_client()
         if model is None:
             model = self._config.llm_model
-        # TODO: use generate instead of chat
-        response = client.chat(
-            model=model, 
+
+        system = []
+        if system_prompt:
+            system.append({'text': system_prompt})
+        response = client.converse(
+            modelId=bedrock_models[model],
             messages=messages,
-            options={'temperature' : 0.0}
-            )
-        typed_response = cast(ChatResponse, response)
+            system=system,
+            inferenceConfig={
+                "temperature": 0.0,
+            }
+        )
 
-        logger.debug(f"LLM Response: {typed_response}")
-        self._log_model_metrics(typed_response)
+        logger.debug(f"LLM Response: {response}")
 
-        return typed_response
+        return response
 
-    def _stream_call_llm(self, messages: list[dict],  model: str | None = None) -> Generator[ChatResponse, None, None]:
+    def _stream_call_llm(self, messages: list[dict], system_prompt: str | None = None, model: str | None = None) -> Generator[ConverseStreamOutputTypeDef, None, None]:
         """
             Call the LLM model
         """
         client = self._get_llm_client()
         if model is None:
             model = self._config.llm_model
-        stream = client.chat(model=model, messages=messages, stream=True)
-        for chunk in stream:
-            yield chunk
+
+        system = []
+        if system_prompt:
+            system.append({'text': system_prompt})
+        stream = client.converse_stream(
+            modelId=bedrock_models[model],
+            messages=messages,
+            system=system,
+            inferenceConfig={
+                "temperature": 0.0,
+            }
+        )
+        for chunk in stream['stream']:
+            if "contentBlockDelta" in chunk:
+                yield chunk
 
     def _prepare_analyze_results(self, question: str | None = None, search_results: str | None = None) -> list[dict[str, str]]:
         # Check if question is set. Use the question set in the class if not
@@ -133,16 +148,10 @@ class BaseTool:
             search_results = self._search_results
 
 
-        instructions = self._get_analysis_instructions(search_results)
-
         messages = [
             {
-                'role': 'system',
-                'content': instructions
-            },
-            {
                 'role': 'user',
-                'content': question
+                'content': [{"text": question}]
             },
         ]
         return messages
@@ -152,8 +161,10 @@ class BaseTool:
 
         messages = self._prepare_analyze_results(question=question, search_results=search_results)
 
-        response = self._call_llm(messages=messages)
-        analysis = response["message"]["content"]
+        instructions = self._get_analysis_instructions(search_results)
+
+        response = self._call_llm(messages=messages, system_prompt=instructions)
+        analysis = response['output']["message"]["content"][0]["text"]
         logger.debug(f"Splunk Task Analysis: '{analysis}'")
         return analysis
 
@@ -162,9 +173,11 @@ class BaseTool:
 
         messages = self._prepare_analyze_results(question=question, search_results=search_results)
 
-        response = self._stream_call_llm(messages=messages)
+        instructions = self._get_analysis_instructions(search_results)
+
+        response = self._stream_call_llm(messages=messages, system_prompt=instructions)
         for chunk in response:
-            yield chunk['message']['content']
+            yield chunk['contentBlockDelta']["delta"]["text"]
 
     def _get_analysis_instructions(self, search_results: str) -> str:
         """

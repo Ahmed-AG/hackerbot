@@ -31,6 +31,8 @@ click = "^8.1.7"
 prettytable = "^3.10.2"
 pydantic-settings = "^2.4.0"
 tomlkit = "^0.13.0"
+boto3 = "^1.35.77"
+boto3-stubs = {extras = ["bedrock-agent-runtime"], version = "^1.35.77"}
 
 
 [tool.poetry.group.build]
@@ -45,6 +47,10 @@ optional = true
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.2"
 pytest-cov = "^5.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+boto3-stubs = {version = "1.35.77", extras = ["bedrock-agent-runtime", "bedrock-runtime"]}
 
 [build-system]
 requires = ["poetry-core"]
