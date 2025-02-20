@@ -60,10 +60,10 @@ jobs:
         runs-on: ubuntu-20.04
         name: Display results
         needs:
-        - build
+            - build
         steps:
-        - name: Results
-            # id: sesults
-            uses: lacework/code-security-action@v1
-            with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Results
+                # id: sesults
+                uses: lacework/code-security-action@v1
+                with:
+                token: ${{ secrets.GITHUB_TOKEN }}
