@@ -1,0 +1,47 @@
+on:
+ # Triggers the workflow on push or pull request events but only for the "main" branch
+ pull_request:
+ # Allows you to run this workflow manually from the Actions tab
+ workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  LW_ACCOUNT_NAME: ${{ secrets.LW_ACCOUNT_NAME }}
+  LW_API_KEY: ${{ secrets.LW_API_KEY }}
+  LW_API_SECRET: ${{ secrets.LW_API_SECRET }}
+
+name: Lacework Code Analysis (PR)
+jobs:
+  sca-analysis:
+    runs-on: ubuntu-20.04
+    name: Run analysis
+    strategy:
+      matrix:
+        target: [new, old]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Checkout old
+        if: ${{ matrix.target == 'old' }}
+        run: git checkout HEAD^1
+      - name: Analyze
+        uses: lacework/code-security-action@v1
+        with:
+          target: ${{ matrix.target }}
+          tools: sca
+  display-results:
+    runs-on: ubuntu-20.04
+    name: Display results
+    needs:
+      - sca-analysis
+    steps:
+      - name: Results
+        id: code-analysis
+        uses: lacework/code-security-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
