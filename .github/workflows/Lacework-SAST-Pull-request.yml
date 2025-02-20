@@ -5,6 +5,11 @@ on:
     branches: 
       - main  # Specify the target branch for the pull request trigger 
 
+env:
+    LW_ACCOUNT_NAME: ${{ secrets.LW_ACCOUNT }}
+    LW_API_KEY: ${{ secrets.LW_API_KEY }}
+    LW_API_SECRET: ${{ secrets.LW_API_SECRET }}
+
 jobs: 
   build: 
     runs-on: ubuntu-latest  # The job runs on the latest Ubuntu environment 
@@ -63,7 +68,8 @@ jobs:
         with: 
           token: ${{ secrets.GITHUB_TOKEN }} 
 
-          
+          lacework configure -a ${{ secrets.LW_ACCOUNT }}.lacework.net -k ${{ secrets.LW_API_KEY }} -s ${{ secrets.LW_API_SECRET }} --noninteractive 
+
     # display-results:
     #     runs-on: ubuntu-20.04
     #     name: Display results
