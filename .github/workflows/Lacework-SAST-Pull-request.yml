@@ -52,7 +52,7 @@ jobs:
 
       # Step 7: Upload the SARIF file for analysis or further use 
       - name: Upload SARIF File 
-        uses: actions/upload-artifact@v3  # Use the upload artifact action to save the SARIF file 
+        uses: actions/upload-artifact@v4  # Use the upload artifact action to save the SARIF file 
         with: 
           name: lacework-comparison-report  # Name of the uploaded artifact 
           path: /tmp/lacework-comparison.sarif  # Path to the SARIF file
