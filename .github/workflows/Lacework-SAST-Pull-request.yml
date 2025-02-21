@@ -81,4 +81,13 @@ jobs:
         uses: actions/github-script@v6
         with:
             script: |
+                test_results=""
                 const message = "Verify the Lacework IaC scanning results before merging!"
+                const output = message + test_results
+
+                github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+                })  
