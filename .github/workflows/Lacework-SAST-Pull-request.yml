@@ -71,4 +71,17 @@ jobs:
 
       # Step 9: Add comment to the PR 
       - name: Display results 
-        run: cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv'
+        run: |
+            results=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv')
+
+            const message = "Verify the Lacework SCAand SAST scanning results before merging!"
+            const test_results = `<table><tr><th><th>Tests</th><th>Passed ✅</th><th>Failed ❌</th></tr><tr><td>Lacework TF-SCAN JUnit Results</td><td>${TESTS} Ran</td><td>${TESTS_PASSED} Passed</td><td>${TESTS_FAILED} Failed</td></tr></table>`
+
+            const output = message + results
+
+            github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+            })  
