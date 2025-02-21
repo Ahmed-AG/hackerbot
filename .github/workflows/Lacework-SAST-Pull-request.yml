@@ -84,9 +84,9 @@ jobs:
                 # test_results=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv')
                 # const { TESTS, TESTS_PASSED, TESTS_FAILED   } = process.env
                 const message = "Verify the Lacework IaC scanning results before merging!"
-                const test_results = `<table><tr><th><th>Tests</th><th>Passed ✅</th><th>Failed ❌</th></tr><tr><td>Lacework TF-SCAN JUnit Results</td><td>${TESTS} Ran</td><td>${TESTS_PASSED} Passed</td><td>${TESTS_FAILED} Failed</td></tr></table>`
+                # const test_results = `<table><tr><th><th>Tests</th><th>Passed ✅</th><th>Failed ❌</th></tr><tr><td>Lacework TF-SCAN JUnit Results</td><td>${TESTS} Ran</td><td>${TESTS_PASSED} Passed</td><td>${TESTS_FAILED} Failed</td></tr></table>`
 
-                const output = message + test_results
+                # const output = message + test_results
 
                 # github.rest.issues.createComment({
                 # issue_number: context.issue.number,
