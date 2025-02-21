@@ -93,8 +93,11 @@ jobs:
             script: |
                 const { RESULTS } = process.env
                 const message = "❗ Lacework SAST and SCA scanning results:❗ \n"
-                const output = message + RESULTS
+                const table = '<table><td>${TESTS} Ran</td><td>${TESTS_PASSED} Passed</td><td>${TESTS_FAILED} Failed</td></tr></table>`
 
+                const output = message + RESULTS + table
+                
+                
                 github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
