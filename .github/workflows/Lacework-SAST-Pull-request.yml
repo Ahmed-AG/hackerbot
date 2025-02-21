@@ -92,12 +92,10 @@ jobs:
         with:
             script: |
                 const { RESULTS } = process.env
-                const message = "Verify the Lacework SAST and SCA scanning results before merging!"
-                const output = message + RESULTS
 
                 github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: output
+                body: RESULTS
                 })  
