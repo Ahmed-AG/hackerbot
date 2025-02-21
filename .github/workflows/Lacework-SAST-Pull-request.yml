@@ -34,33 +34,33 @@ jobs:
 
       # Step 3: Run the Lacework SCA scan on the source branch and save the output 
       - name: Run Lacework SCA Scan on Source Branch 
-        run: lacework sca scan ./ -f sarif -o /tmp/lacework-scan-source.json 
+        run: lacework sca scan ./ --save-results -f sarif -o /tmp/lacework-scan-source.json 
         # Scan the source branch code, output in SARIF format, and save to /tmp/lacework-scan-source.json 
 
-      # Step 4: Check out the target branch of the pull request 
-      - name: Checkout target branch 
-        uses: actions/checkout@v3  # Use the checkout action to pull the target branch code 
-        with: 
-          ref: ${{ github.event.pull_request.base.ref }}  # Reference the target branch of the pull request 
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use the GitHub token for authentication 
+    #   # Step 4: Check out the target branch of the pull request 
+    #   - name: Checkout target branch 
+    #     uses: actions/checkout@v3  # Use the checkout action to pull the target branch code 
+    #     with: 
+    #       ref: ${{ github.event.pull_request.base.ref }}  # Reference the target branch of the pull request 
+    #       token: ${{ secrets.GITHUB_TOKEN }}  # Use the GitHub token for authentication 
 
-      # Step 5: Run the Lacework SCA scan on the target branch and save the output 
-      - name: Run Lacework SCA Scan on Target Branch 
-        run: lacework sca scan ./ -f sarif -o /tmp/lacework-scan-target.json 
-        # Scan the target branch code, output in SARIF format, and save to /tmp/lacework-scan-target.json 
+    #   # Step 5: Run the Lacework SCA scan on the target branch and save the output 
+    #   - name: Run Lacework SCA Scan on Target Branch 
+    #     run: lacework sca scan ./ -f sarif -o /tmp/lacework-scan-target.json 
+    #     # Scan the target branch code, output in SARIF format, and save to /tmp/lacework-scan-target.json 
 
-      # Step 6: Compare results from the two scans and generate SARIF output 
-      - name: Compare JSON Files and Generate SARIF 
-        run: lacework sca compare --new /tmp/lacework-scan-source.json --old /tmp/lacework-scan-target.json --formats sarif -o /tmp/lacework-comparison.sarif 
-        # Compare the JSON outputs from the source and target branches 
-        # Generate the comparison result in SARIF format and save to /tmp/lacework-comparison.sarif 
+    #   # Step 6: Compare results from the two scans and generate SARIF output 
+    #   - name: Compare JSON Files and Generate SARIF 
+    #     run: lacework sca compare --new /tmp/lacework-scan-source.json --old /tmp/lacework-scan-target.json --formats sarif -o /tmp/lacework-comparison.sarif 
+    #     # Compare the JSON outputs from the source and target branches 
+    #     # Generate the comparison result in SARIF format and save to /tmp/lacework-comparison.sarif 
 
       # Step 7: Upload the SARIF file for analysis or further use 
-      - name: Upload SARIF File 
-        uses: actions/upload-artifact@v4  # Use the upload artifact action to save the SARIF file 
-        with: 
-          name: lacework-comparison-report  # Name of the uploaded artifact 
-          path: /tmp/lacework-comparison.sarif  # Path to the SARIF file
+    #   - name: Upload SARIF File 
+    #     uses: actions/upload-artifact@v4  # Use the upload artifact action to save the SARIF file 
+    #     with: 
+    #       name: lacework-comparison-report  # Name of the uploaded artifact 
+    #       path: /tmp/lacework-comparison.sarif  # Path to the SARIF file
 
       # Step 8: Upload the JSON files for analysis or further use 
       - name: Upload JSON File 
@@ -71,6 +71,4 @@ jobs:
 
       # Step 9: Add comment to the PR 
       - name: Display results 
-        uses: lacework/code-security-action@v1  
-        with: 
-          token: ${{ secrets.GITHUB_TOKEN }} 
+        run: cat 
