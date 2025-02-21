@@ -93,7 +93,17 @@ jobs:
             script: |
                 const { RESULTS } = process.env
                 const message = "❗ Lacework SAST and SCA scanning results:❗ \n"
-                const table =  "<table><tr><th><th>Tests</th><th>Passed ✅</th><th>Failed ❌</th></tr><tr><td>Lacework TF-SCAN JUnit Results</td><td>${TESTS} Ran</td><td>${TESTS_PASSED} Passed</td><td>${TESTS_FAILED} Failed</td></tr></table>"
+                const table =  "<table>
+                <tr>
+                    <th>
+                        <th>Level</th>
+                        <th>Rule ID</th>
+                        <th>Message</th>
+                    </tr>
+                    <tr>
+                        <td>warning</td>	<td>string-concat-in-shell-command-python</td>	<td>Detected string concatenation in shell command, which is a bad practice and may allow code injection attacks</td>
+                    </tr>
+                </table>"
                 const output = message + RESULTS + table
                 
                 
