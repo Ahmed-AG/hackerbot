@@ -5,13 +5,20 @@ on:
     branches: 
       - main  # Specify the target branch for the pull request trigger 
 
+permissions:
+    id-token: write
+    contents: read 
+    pull-requests: write 
+    security-events: write
+    actions: read
+
 env:
     LW_ACCOUNT_NAME: ${{ secrets.LW_ACCOUNT }}
     LW_API_KEY: ${{ secrets.LW_API_KEY }}
     LW_API_SECRET: ${{ secrets.LW_API_SECRET }}
 
 jobs: 
-  build: 
+  scan: 
     runs-on: ubuntu-latest  # The job runs on the latest Ubuntu environment 
 
     steps: 
