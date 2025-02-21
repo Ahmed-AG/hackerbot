@@ -80,7 +80,7 @@ jobs:
       - name: Publish Scan Results
         run: |
             # Create results summary
-            RESULTS=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | "<td>" + .level + "</td>", "<td>" +  .ruleId +"</td>"  , "<td>" + .message.text+ "</td>")
+            RESULTS=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | "<td>" + .level + "</td>", "<td>" +  .ruleId +"</td>"  , "<td>" + .message.text+ "</td>" |tr -d '\n')
             echo "Results: $RESULTS" 
 
             # Set GITHUB_ENV
