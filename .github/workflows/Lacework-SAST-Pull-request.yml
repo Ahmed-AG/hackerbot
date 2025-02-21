@@ -71,4 +71,4 @@ jobs:
 
       # Step 9: Add comment to the PR 
       - name: Display results 
-        run: cat 
+        run: jq /tmp/lacework-scan-source.json
