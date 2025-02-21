@@ -93,7 +93,7 @@ jobs:
             script: |
                 const { RESULTS } = process.env
                 const message = "❗ Lacework SAST and SCA scanning results:❗ \n"
-                const table =  '<table><tr><th>Level</th><th>Rule ID</th><th>Message</th></tr><tr>${RESULTS}></tr></table>'
+                const table =  '<table> <tr><th><th>Level</th><th>Rule ID</th><th>Message</th> </th> </tr><tr>${RESULTS}</tr></table>'
                 const output = message + RESULTS + table
                 
                 
