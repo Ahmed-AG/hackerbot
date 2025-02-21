@@ -76,13 +76,24 @@ jobs:
             name: lacework-json-reports  # Name of the uploaded artifact 
             path: /tmp/*.json  # Path to the SARIF file
 
-      # Step 9: Add comment to the PR 
+      # Publish the results
+      - name: Publish Scan Results
+        run: |
+            # Create results summary
+            RESULTS=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv')
+            echo "Results: $RESULTS" 
+
+            # Set GITHUB_ENV
+            echo "RESULTS=$RESULTS" >> "$GITHUB_ENV"
+        
+      # Add comment to the PR 
       - name: Display results 
         uses: actions/github-script@v6
         with:
             script: |
-                test_results=""
-                const message = "Verify the Lacework IaC scanning results before merging!"
+                const { RESULTS } = process.env
+                test_results="${RESULTS}""
+                const message = "Verify the Lacework SAST and SCA scanning results before merging!"
                 const output = message + test_results
 
                 github.rest.issues.createComment({
