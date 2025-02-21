@@ -71,4 +71,4 @@ jobs:
 
       # Step 9: Add comment to the PR 
       - name: Display results 
-        run: cat /tmp/lacework-scan-source.json | jq
+        run: cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv'
