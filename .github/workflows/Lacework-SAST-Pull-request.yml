@@ -80,7 +80,7 @@ jobs:
       - name: Publish Scan Results
         run: |
             # Create results summary
-            RESULTS=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | "<th>" + .level + "</th>", "<th>" +  .ruleId + "</th>"  , "<th>" + .message.text + "</th>"' |tr -d '\n')
+            RESULTS=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level + ":", .ruleId + " -", .message.text] |@tsv')
             echo "Results: $RESULTS" 
 
             # Set GITHUB_ENV
@@ -93,8 +93,7 @@ jobs:
             script: |
                 const { RESULTS } = process.env
                 const message = "❗ Lacework SAST and SCA scanning results:❗ \n"
-                const table =  '<table> <tr><th><th>Level</th><th>Rule ID</th><th>Message</th> </th> </tr><tr>${RESULTS}</tr></table>'
-                const output = table
+                const output = message + RESULTS
                 
                 
                 github.rest.issues.createComment({
