@@ -74,9 +74,9 @@ jobs:
         run: |
             results=$(cat /tmp/lacework-scan-source.json | jq -r '.runs[].results[] | [.level, .ruleId, .message.text] |@tsv')
 
-            const message = "Verify the Lacework SCAand SAST scanning results before merging!"
+            message="Verify the Lacework SCAand SAST scanning results before merging!"
 
-            const output = message + results
+            output=message + results
 
             github.rest.issues.createComment({
             issue_number: context.issue.number,
