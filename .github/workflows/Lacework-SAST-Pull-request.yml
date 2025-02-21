@@ -92,7 +92,7 @@ jobs:
         with:
             script: |
                 const { RESULTS } = process.env
-                const message = "❗ Lacework SAST and SCA scanning results:\n"
+                const message = "❗ Lacework SAST and SCA scanning results:❗ \n"
                 const output = message + RESULTS
 
                 github.rest.issues.createComment({
