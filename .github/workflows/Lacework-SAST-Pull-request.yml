@@ -92,9 +92,8 @@ jobs:
         with:
             script: |
                 const { RESULTS } = process.env
-                test_results = "${RESULTS}""
                 const message = "Verify the Lacework SAST and SCA scanning results before merging!"
-                const output = message + test_results
+                const output = message + RESULTS
 
                 github.rest.issues.createComment({
                 issue_number: context.issue.number,
